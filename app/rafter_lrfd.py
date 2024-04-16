@@ -1,4 +1,4 @@
-# rafter DESIGN : CASE OVERHANG : ASD METHOD
+# rafterER DESIGN : CASE OVERHANG : LRFD METHOD
 import os
 import numpy as np
 import pandas as pd
@@ -17,11 +17,10 @@ flags.DEFINE_float("Es", 2.04e6, "Youngs modulus, MPA")
 
 flags.DEFINE_float("l", 0, "length, m")
 flags.DEFINE_float("a", 1, "overhang length, m")
-flags.DEFINE_float("w", 0, "width of area load, m")
-flags.DEFINE_float("b", 0, "length of area load, m")
+flags.DEFINE_float("s", 0, "rafter spacing, m")
 flags.DEFINE_float("slope", 0, "roof slope, degree")
 
-flags.DEFINE_float("hip", 14, "initial hip weigth, kg/m")
+flags.DEFINE_float("self_wt", 10, "initial rafter weigth, kg/m")
 flags.DEFINE_float("DL", 0, "Dead Load, kg/m2")
 flags.DEFINE_float("Lr", 0, "Roof live load, kg/m2")
 flags.DEFINE_float("WL", 0, "Wind load, kg/m2")
@@ -59,7 +58,7 @@ def Mu(w, l, a):
 
 def flex(Mu, Zx):
     Fb = FLAGS.Fy
-    𝜙Mn = 0.9 * Fb * Zx / 1000  # kN-m
+    𝜙Mn = 0.9 * Fb * Zx *1e-3 # kN-m
     print(f"𝜙Mn = {𝜙Mn:.2f} kN-m, Mu = {Mu:.2f} kN-m")
 
     if 𝜙Mn >= Mu:
@@ -69,7 +68,7 @@ def flex(Mu, Zx):
 
 
 def eff(Mu, Zx, Pu, A):
-    Fb = 0.9 * FLAGS.Fy
+    Fb = 0.75 * FLAGS.Fy
     eff_ = (Mu * 100 / Zx) / Fb + (Pu * 1e-2 / A) / Fb
 
     print("--------------------------------------")
@@ -103,7 +102,7 @@ def delta(w, l, a, Ix):
 def shear(Vu, A, h, t):
     Fv = FLAGS.Fy
     # Vt = Vu/(A*1000)
-    𝜙Vn = 0.75 * Fv * A / 10  # kN
+    𝜙Vn = 0.9 * Fv * A / 10  # kN
     # σv = Vu*10/A #Mpa
     print(f"𝜙Vn = {𝜙Vn:.2f} kN, Vu = {Vu:.2f} kN")
 
@@ -125,14 +124,16 @@ def cal(DL, Lr, WL, slope, l, a):
         WL * np.sin(np.radians(slope)),
     )  # kN/m
 
-    Pn = wx * (l + a)  # Axial force, kN
     Pu = wux * (l + a)  # Axial force, kN
 
     R1, R2, Vuy = Vu(wuy, l, a)  # kN
+    R1 = R1 / np.cos(np.radians(slope))  # Vertical force
+    R2 = R2 / np.cos(np.radians(slope))  # Vertical force
+
     Muz = Mu(wuy, l, a)  # kN-m
     Zx = Muz * 1000 / (0.9 * FLAGS.Fy)  # cm^3
 
-    return R1, R2, Pn, Pu, wy, wuy, Vuy, Muz, Zx
+    return R1, R2, Pu, wy, wuy, Vuy, Muz, Zx
 
 
 def check(Pu, wy, As, Muz, Vuy):
@@ -162,10 +163,11 @@ def check(Pu, wy, As, Muz, Vuy):
         else:
             pass 
 
+    
 
 def report(**kwargs):
     x = kwargs
-    print("STEEL HIP DESIGN : LRFD Method : CASE OVERHANG")
+    print("STEEL RAFTER DESIGN : LRFD Method : CASE OVERHANG")
     print(
         "================================================================================================================================"
     )
@@ -176,13 +178,14 @@ def report(**kwargs):
         f"\nLOAD CASE: \n1 = DL+Lr #SLS \n2 = 0.75*(1.4DL + 1.7Lr) +  1.6WL \n3 = 0.9DL + 1.6WL "
     )
     print(
-        f"\nGEOMETRY: \nSpan = {x['L']} m \nOverhang = {x['a']} m \nslope  = {x['slope']} degree"
+        f"\nGEOMETRY: \nSpan = {x['L']} m \nOverhang = {x['a']} m \nrafter spacing = {x['s']} m \nslope  = {x['slope']} degree"
     )
 
     print(f"\nCALCULATION")
-    print(f"DL = {x['DL']:.2f} kN/m, Lr = {x['Lr']:.2f} kN/m, WL = {x['WL']:.2f} kN/m")
+    print(f"DL = {x['DL']:.2f} kg/m2, Lr = {x['Lr']:.2f} kg/m2, WL = {x['WL']:.2f} kg/m2")
     print(f"R1 = {x['R1']:.2f} kN, R2 = {x['R2']:.2f} kN")
     print(f"wuy = {x['wuy']:.2f} kN/m")
+    print(f"Pu = {x['Pu']:.2f} kN")
     print(f"Vuy = {x['Vuy']:.2f} kN")
     print(f"Muz = {x['Muz']:.2f} kN-m")
     print(f"Zx required = {x['Zx']:.2f} cm3 ")
@@ -191,20 +194,20 @@ def report(**kwargs):
 def design():
     l = FLAGS.l
     a = FLAGS.a
-    w = FLAGS.w
-    b = FLAGS.b
+    s = FLAGS.s
     slope = FLAGS.slope
 
     # CALCULATION
-    DL = ((FLAGS.DL * w * b / l) + FLAGS.hip) * 0.0098  # kN/m
-    Lr = (FLAGS.Lr * w * b / l) * 0.0098  # kN/m
-    WL = (FLAGS.WL * w * b / l) * 0.0098  # kN/m
+    DL = FLAGS.DL * FLAGS.s * 0.0098 + FLAGS.self_wt * 0.0098  # kN/m
+    Lr = FLAGS.Lr * FLAGS.s * 0.0098  # kN/m
+    WL = FLAGS.WL * FLAGS.s * 0.0098  # kN/m
 
-    R1, R2, Pn, Pu, wy, wuy, Vuy, Muz, Zx = cal(DL, Lr, WL, slope, l, a)
+    R1, R2, Pu, wy, wuy, Vuy, Muz, Zx = cal(DL, Lr, WL, slope, l, a)
 
     context = {
         "L": l,
         "a": a,
+        "s": s,
         "slope": slope,
         "DL": FLAGS.DL,
         "Lr": FLAGS.Lr,
@@ -212,6 +215,7 @@ def design():
         "R1": R1,
         "R2": R2,
         "wuy": wuy,
+        "Pu": Pu,
         "Vuy": Vuy,
         "Muz": Muz,
         "Zx": Zx,
@@ -275,13 +279,14 @@ How to used?
     % conda activate <your conda env name>
 
     use CCL (CCL is default section --> don't provide section flag)
-    % python app/hip.py --l=3.5  --slope=15 --DL=79 --Lr=30 --WL=50 --w=6--b=6
+    % python app/rafter_lrfd.py --l=5 --s=1 --slope=30 --DL=65 --Lr=50 --WL=60
 
     use TUBE
-    % python app/hip.py --l=3.5  --slope=23 --DL=94 --Lr=30 --WL=50 --w=6.9 --b=3.9 --section=Rectangular_Tube.csv
+    % python app/rafter_lrfd.py --l=6 --s=3 --slope=8 --DL=25 --Lr=50 --WL=60 --section=Rectangular_Tube.csv
 
     use Double-CCL
-    % python app/hip.py --l=6 --slope=30 --DL=80 --Lr=30 --WL=50 --w=6 --b=6 --section=Double_Light_Lip_Channel.csv
+    % python app/rafter_lrfd.py --l=6 --s=3 --slope=16 --DL=25 --Lr=50 --WL=60 --section=Double_Light_Lip_Channel.csv
+    % python app/rafter.py --l=6 --a=1.2 --s=3 --slope=8 --self_wt=12 --DL=25 --Lr=50 --WL=60 --section=Double_Light_Lip_Channel.csv
 
     another section please see csv file in sections folder
 """

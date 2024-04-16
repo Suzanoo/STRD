@@ -45,7 +45,7 @@ def wu(DL, Lr, WL):
     
 def Mu(Wux, Wuy):
     Mux = (1 / 8) * Wuy * FLAGS.L**2  # kg-m
-    
+
     if FLAGS.sagrod == False:
         Muy = (1 / 8) * Wux * FLAGS.L**2  # kg-m
     else:
@@ -115,8 +115,6 @@ def deflection(Wux, Wuy, Ix, Iy):
         print("Deflection OK")
     else:
         print("Deflection NOT OK")
-
-
 
 
 
@@ -241,6 +239,14 @@ def design():
     print("--------------------------------------")
 
     shear(Wuy, As.A, int(As["h"]), int(As["t"]))
+
+    # Slenderness
+    print(f"\n Slenderness: ")
+    K = float(input("Define K: "))
+    L = float(input("Define L in m: "))
+    r = float(input("Define r in cm: "))
+
+    print(f"KL/r  = {K * L * 1e3 / r:.0f} : 240")
 
 
 def main(_args):

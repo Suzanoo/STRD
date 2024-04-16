@@ -31,11 +31,10 @@ flags.DEFINE_string("section", "Light_Lip_Channel.csv", "rafter section")
 # Load Case
 def wu(DL, Lr, WL):
     case1 = DL + Lr  # SLS --> w
-    case2 = 1.4 * DL  # ULS --> wu
-    case3 = 1.2 * DL + 0.5 * Lr  # ULS --> wu
-    case4 = 1.2 * DL + 1.6 * Lr + 0.8 * WL  # ULS --> wu
-    case5 = 1.2 * DL + 1.3 * WL + 0.5 * Lr  # ULS --> wu
-    return case1, max(case1, case2, case3, case4, case5)  # kN/m2
+    case2 = DL + 0.75 * (Lr + WL)  
+    case3 = 0.6 * DL + WL
+
+    return case1, max(case2, case3)
 
 
 # Method
@@ -59,11 +58,11 @@ def Mu(w, l, a):
 
 
 def flex(Mu, Zx):
-    Fb = 0.9 * FLAGS.Fy
-    𝜙Mn = Fb * Zx / 1000  # kN-m
-    print(f"𝜙Mn = {𝜙Mn:.2f} kN-m, Mu = {Mu:.2f} kN-m")
+    Fb = 0.6 * FLAGS.Fy
+    Mn = Fb * Zx / 1000  # kN-m
+    print(f"Mn/Ω = {Mn:.2f} kN-m, Mu = {Mu:.2f} kN-m")
 
-    if 𝜙Mn >= Mu:
+    if Mn >= Mu:
         print("Flexural Resistance OK")
     else:
         print("Flexural Resistance NOT OK")
@@ -104,11 +103,11 @@ def delta(w, l, a, Ix):
 def shear(Vu, A, h, t):
     Fv = 0.4 * FLAGS.Fy
     # Vt = Vu/(A*1000)
-    𝜙Vn = Fv * A / 10  # kN
+    Vn = Fv * A / 10  # kN
     # σv = Vu*10/A #Mpa
-    print(f"𝜙Vn = {𝜙Vn:.2f} kN, Vu = {Vu:.2f} kN")
+    print(f"𝜙Vn/Ω = {Vn:.2f} kN, Vu = {Vu:.2f} kN")
 
-    if 𝜙Vn > Vu:
+    if Vn > Vu:
         print("Shear Resistance OK ")
     else:
         print("Shear Resistance NOT OK ")
@@ -120,6 +119,7 @@ def cal(DL, Lr, WL, slope, l, a):
         Lr * np.sin(np.radians(slope)),
         WL * np.cos(np.radians(slope)),
     )  # kN/m
+
     wy, wuy = wu(
         DL * np.cos(np.radians(slope)),
         Lr * np.cos(np.radians(slope)),
@@ -150,25 +150,38 @@ def check(Pu, wy, As, Muz, Vuy):
     # check shear
     shear(Vuy, As.A, As.h, As.t)
 
+    # Slenderness in each axis
+    print(f"\nSlenderness: ")
+    while True:
+        K = float(input("Define K: ")) # Kx or Ky
+        L = float(input("Define L in m: ")) # Lx or Ly
+        r = float(input("Define r in cm: ")) # rx or ry
+
+        print(f"KL/r  = {K * L * 1e3 / r:.0f} : 240")
+
+        ask = input("Finish ??? : Y|N : ").upper()
+        if ask == "Y":
+            break
+        else:
+            pass 
+
 
 def report(**kwargs):
     x = kwargs
-    print("STEEL RAFTER DESIGN : LRFD Method : CASE OVERHANG")
+    print("STEEL RAFTER DESIGN : ASD Method : CASE OVERHANG")
     print(
         "================================================================================================================================"
     )
     print(
         f"MATERIAL PROPERTIES: \nSteel A36  \nFu = {FLAGS.FU} MPa \nFy = {FLAGS.Fy} MPa \nEs = {FLAGS.Es} MPa"
     )
-    print(
-        f"\nLOAD CASE: \n1 = DL+Lr #SLS \n2 = 1.4DL \n3 = 1.2DL+0.5Lr \n4 = 1.2DL+1.6Lr+0.8WL \n5 = 1.2DL+1.3WL+0.5Lr"
-    )
+    print(f"\nLOAD CASE: \n1 = DL + 0.75 * (Lr + WL)  \n2 = 0.6 * DL + WL")
     print(
         f"\nGEOMETRY: \nSpan = {x['L']} m \nOverhang = {x['a']} m \nrafter spacing = {x['s']} m \nslope  = {x['slope']} degree"
     )
 
     print(f"\nCALCULATION")
-    print(f"DL = {x['DL']:.2f} kN/m, Lr = {x['Lr']:.2f} kN/m, WL = {x['WL']:.2f} kN/m")
+    print(f"DL = {x['DL']:.2f} kg/m2, Lr = {x['Lr']:.2f} kg/m2, WL = {x['WL']:.2f} kg/m2")
     print(f"R1 = {x['R1']:.2f} kN, R2 = {x['R2']:.2f} kN")
     print(f"wuy = {x['wuy']:.2f} kN/m")
     print(f"Pu = {x['Pu']:.2f} kN")
@@ -195,9 +208,9 @@ def design():
         "a": a,
         "s": s,
         "slope": slope,
-        "DL": DL,
-        "Lr": Lr,
-        "WL": WL,
+        "DL": FLAGS.DL,
+        "Lr": FLAGS.Lr,
+        "WL": FLAGS.WL,
         "R1": R1,
         "R2": R2,
         "wuy": wuy,
@@ -265,14 +278,14 @@ How to used?
     % conda activate <your conda env name>
 
     use CCL (CCL is default section --> don't provide section flag)
-    % python app/rafter.py --l=5 --s=1 --slope=30 --DL=65 --Lr=30 --WL=50
+    % python app/rafter.py --l=5 --s=1 --slope=30 --DL=65 --Lr=50 --WL=60
 
     use TUBE
-    % python app/rafter.py --l=6 --s=3 --slope=8 --DL=25 --Lr=30 --WL=50 --section=Rectangular_Tube.csv
+    % python app/rafter.py --l=6 --s=3 --slope=8 --DL=25 --Lr=50 --WL=60 --section=Rectangular_Tube.csv
 
     use Double-CCL
-    % python app/rafter.py --l=6 --s=3 --slope=16 --DL=25 --Lr=30 --WL=50 --section=Double_Light_Lip_Channel.csv
-    % python app/rafter.py --l=6 --a=1.2 --s=3 --slope=8 --self_wt=12 --DL=25 --Lr=30 --WL=50 --section=Double_Light_Lip_Channel.csv
+    % python app/rafter.py --l=6 --s=3 --slope=16 --DL=25 --Lr=50 --WL=60 --section=Double_Light_Lip_Channel.csv
+    % python app/rafter.py --l=6 --a=1.2 --s=3 --slope=8 --self_wt=12 --DL=25 --Lr=50 --WL=60 --section=Double_Light_Lip_Channel.csv
 
     another section please see csv file in sections folder
 """

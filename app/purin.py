@@ -232,6 +232,14 @@ def design():
 
     shear(Wuy, As.A, int(As["h"]), int(As["t"]))
 
+    # Slenderness
+    print(f"\n Slenderness: ")
+    K = float(input("Define K: "))
+    L = float(input("Define L in m: "))
+    r = float(input("Define r in cm: "))
+
+    print(f"KL/r  = {K * L * 1e3 / r:.0f} : 240")
+
 
 def main(_args):
     design()

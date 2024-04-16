@@ -1,4 +1,4 @@
-# RIDGE DESIGN : CASE OVERHANG : ASD METHOD
+# RIDGE DESIGN: LRFD METHOD
 # Use reaction from rafter become load to ridge
 import os
 import numpy as np
@@ -20,7 +20,7 @@ flags.DEFINE_float("l", 0, "length, m")
 flags.DEFINE_float("a", 0, "overhang length, m")
 
 flags.DEFINE_float("ridge", 15, "initial ridge weigth, kg/m")
-flags.DEFINE_float("Wu", 0, "Line load generated from rafter reaction, kg/m")
+flags.DEFINE_float("Wu", 0, "Line load generated from rafter reaction, kN/m")
 
 flags.DEFINE_string("section", "Light_Lip_Channel.csv", "ridge section")  # default
 
@@ -46,8 +46,8 @@ def Mu(w, l, a):
 
 
 def flex(Mu, Zx):
-    Fb = 0.9 * FLAGS.Fy
-    𝜙Mn = Fb * Zx / 1000  # kN-m
+    Fb = FLAGS.Fy
+    𝜙Mn = 0.9 * Fb * Zx *1e-3  # kN-m
     print(f"𝜙Mn = {𝜙Mn:.2f} kN-m, Mu = {Mu:.2f} kN-m")
 
     if 𝜙Mn >= Mu:
@@ -89,9 +89,9 @@ def delta(w, l, a, Ix):
 
 
 def shear(Vu, A, h, t):
-    Fv = 0.4 * FLAGS.Fy
+    Fv = FLAGS.Fy
     # Vt = Vu/(A*1000)
-    𝜙Vn = Fv * A / 10  # kN
+    𝜙Vn = 0.9 * Fv * A / 10  # kN
     # σv = Vu*10/A #Mpa
     print(f"𝜙Vn = {𝜙Vn:.2f} kN, Vu = {Vu:.2f} kN")
 
@@ -121,6 +121,21 @@ def check(Pu, Wu, As, Muz, Vuy):
     # check shear
     shear(Vuy, As.A, As.h, As.t)
 
+    # Slenderness in each axis
+    print(f"\nSlenderness: ")
+    while True:
+        K = float(input("Define K: ")) # Kx or Ky
+        L = float(input("Define L in m: ")) # Lx or Ly
+        r = float(input("Define r in cm: ")) # rx or ry
+
+        print(f"KL/r  = {K * L * 1e3 / r:.0f} : 240")
+
+        ask = input("Finish ??? : Y|N : ").upper()
+        if ask == "Y":
+            break
+        else:
+            pass 
+
 
 def report(**kwargs):
     x = kwargs
@@ -132,7 +147,7 @@ def report(**kwargs):
         f"MATERIAL PROPERTIES: \nSteel A36  \nFu = {FLAGS.FU} MPa \nFy = {FLAGS.Fy} MPa \nEs = {FLAGS.Es} MPa"
     )
     print(
-        f"\nLOAD CASE: \n1 = DL+Lr #SLS \n2 = 1.4DL \n3 = 1.2DL+0.5Lr \n4 = 1.2DL+1.6Lr+0.8WL \n5 = 1.2DL+1.3WL+0.5Lr"
+        f"\nLOAD CASE: \n1 = DL+Lr #SLS \n2 = 0.75*(1.4DL + 1.7Lr) +  1.6WL \n3 = 0.9DL + 1.6WL "
     )
     print(f"\nGEOMETRY: \nSpan = {x['L']} m \nOverhang = {x['a']} m ")
 
@@ -149,7 +164,7 @@ def design():
     a = FLAGS.a
 
     # CALCULATION
-    Wu = FLAGS.Wu  # kN/m
+    Wu = FLAGS.Wu + FLAGS.ridge * 9.82 * 1e-3 # kN/m 
 
     R1, R2, Vuy, Muz, Zx = cal(Wu, l, a)
 
