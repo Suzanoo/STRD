@@ -8,11 +8,11 @@ setup(
     name="tools",
     version="0.1",
     license="",
-    description="tools script use in structural design",
+    description="tools script",
     url="",
     author="Suzanoo",
     author_email="highwaynumber12@gmail.com",
-    packages=find_packages(exclude=["section"]),
+    packages=find_packages(exclude=["data"]),
     install_requires=[
         "numpy",
         "pandas",
@@ -32,9 +32,9 @@ setup(
 """
 ## build package
 
-Create __init__.py in directory you want to create custom library
+1.Create __init__.py in directory you want to create custom library
 
-% python setup.py install
+2.% python setup.py install
 
 ## install your package
 

@@ -1,4 +1,4 @@
-## ASD
+## LRFD
 
 import os
 import numpy as np
@@ -29,68 +29,71 @@ flags.DEFINE_string("section", "Light_Lip_Channel.csv", "purin section")
 flags.DEFINE_boolean("sagrod", False, "Sag rod at center")
 
 
+# Load Case
 def wu(DL, Lr, WL):
-    case1 = DL + 0.75 * (Lr + WL)  
-    case2 = 0.6 * DL + WL
+    case1 = DL + Lr  # SLS --> w
+    # case2 = 1.4 * DL  # ULS --> wu
+    # case3 = 1.2 * DL + 0.5 * Lr  # ULS --> wu
+    # case4 = 1.2 * DL + 1.6 * Lr + 0.8 * WL  # ULS --> wu
+    # case5 = 1.2 * DL + 1.3 * WL + 0.5 * Lr  # ULS --> wu
+    # return case1, max(case1, case2, case3, case4, case5)  # kN/m2
 
-    return max(case1, case2)
+    case2 = 0.75 * (1.4 * DL + 1.7 * Lr) + 1.6 * WL
+    case3 = 0.9 * DL + 1.6 * WL
+    return case1, max(case1, case2, case3)  # kN/m2
 
-
+    
 def Mu(Wux, Wuy):
     Mux = (1 / 8) * Wuy * FLAGS.L**2  # kg-m
-
+    
     if FLAGS.sagrod == False:
         Muy = (1 / 8) * Wux * FLAGS.L**2  # kg-m
     else:
         Muy = (1 / 8) * Wux * (0.5 * FLAGS.L)**2  # kg-m
-
     print(f"")
 
     return Mux, Muy
 
 
 def flex(Mux, Muy, Zx, Zy):
-    Fbx = 0.6 * FLAGS.Fy  # ksc
-    Fby = 0.75 * FLAGS.Fy  # ksc
+    𝜙Mnx = 0.9 * FLAGS.Fy * Zx / 100  # kg-m
+    𝜙Mny = 0.9 * FLAGS.Fy * Zy / 100  # kg-m
 
-    Mnx = Fbx * Zx *1e-2  # kg-m 
-    Mny = Fby * Zy *1e-2   # kg-m
-
-
-    if Mnx > Mny:
-        Mn = Mnx 
-        Mu = Mux 
-        print(f"Mn/Ω = {Mn:.2f} kN-m, Mu = {Mu:.2f} kN-m")
-        if Mn >= Mu:
+    if 𝜙Mnx > 𝜙Mny:
+        𝜙Mn = 𝜙Mnx
+        Mu = Mux
+        print(f"𝜙Mn = {𝜙Mn:.2f} kN-m, Mu = {Mu:.2f} kN-m")
+        if 𝜙Mn >= Mu:
             print("Flexural Resistance OK")
         else:
             print("Flexural Resistance NOT OK")
     else:
-        Mn = Mny 
+        𝜙Mn = 𝜙Mny
         Mu = Muy
-        print(f"Mn/Ω = {Mn:.2f} kN-m, Mu = {Mu:.2f} kN-m")
-        if Mn >= Mu:
+        print(f"𝜙Mn = {𝜙Mn:.2f} kN-m, Mu = {Mu:.2f} kN-m")
+        if 𝜙Mn >= Mu:
             print("Flexural Resistance OK")
         else:
             print("Flexural Resistance NOT OK")
 
+
 def shear(Wuy, A, H, T):
-    Fv = 0.4 * FLAGS.Fy  # ksc
-    Vu = 0.5 * Wuy * FLAGS.L # kg
+    Fv = FLAGS.Fy  # ksc
+    Vu = 0.5 * Wuy * FLAGS.L  # kg
 
-    Vnt = Fv * A  # kg
-    Vnh = Fv * H * T / 100  # kg
+    𝜙Vnt = 0.9 * Fv * A  # kg
+    𝜙Vnh = 0.9 * Fv * H * T / 100  # kg
 
-    print(f"Vu = {Vu:.2f} kg \nVnt/Ω = {Vnt:.2f} kg \nVnh/Ω = {Vnh:.2f} kg")
+    print(f"Vu = {Vu:.2f} kg \n𝜙Vnt = {𝜙Vnt:.2f} kg \n𝜙Vnh = {𝜙Vnh:.2f} kg")
 
-    if (Vu < Vnt) & (Vu < Vnh):
+    if (Vu < 𝜙Vnt) & (Vu < 𝜙Vnh):
         print("Shear Resistance OK ")
     else:
         print("Shear Resistance Not OK ")
 
 
 def eff(Mux, Muy, Zx, Zy):
-    Fbx = 0.6 * FLAGS.Fy  # ksc
+    Fbx = 0.9 * FLAGS.Fy  # ksc
     Fby = 0.75 * FLAGS.Fy  # ksc
 
     eff = (Mux * 100 / Zx) / Fbx + (Muy * 100 / Zy) / Fby
@@ -115,16 +118,20 @@ def deflection(Wux, Wuy, Ix, Iy):
 
 
 
+
+
 def report(**kwargs):
     x = kwargs
-    print("STEEL PURIN DESIGN : ASD Method")
+    print("STEEL PURIN DESIGN : LRFD Method")
     print(
         "================================================================================================================================"
     )
     print(
         f"MATERIAL PROPERTIES: \nSteel A36  \nFu = 5000 ksc \nFy = 2520 ksc \nEs = 2.04x10^6 ksc"
     )
-    print(f"\nLOAD CASE: \n1 = DL + 0.75 * (Lr + WL)  \n2 = 0.6 * DL + WL")
+    print(
+        f"\nLOAD CASE: \n1 = DL+Lr #SLS \n2 = 0.75*(1.4DL + 1.7Lr) +  1.6WL \n3 = 0.9DL + 1.6WL "
+    )
     print(
         f"\nGEOMETRY: \nRafter spacing = {x['L']} m \nPurin spacing = {x['s']} m \nSlope  = {x['slope']} degree"
     )
@@ -156,11 +163,11 @@ def design():
     Lr = Lr * s  # kg/m
     WL = WL * slope / 45  # kg/m -- >Ketchum formular
 
-    Wux = wu(DL * np.sin(np.radians(slope)), Lr * np.sin(np.radians(slope)), 0)
-    Wuy = wu(DL * np.cos(np.radians(slope)), Lr * np.cos(np.radians(slope)), WL)
+    Wx, Wux = wu(DL * np.sin(np.radians(slope)), Lr * np.sin(np.radians(slope)), 0)
+    Wy, Wuy = wu(DL * np.cos(np.radians(slope)), Lr * np.cos(np.radians(slope)), WL)
 
     Mux, Muy = Mu(Wux, Wuy)
-    Zx = Mux * 100 / (0.6 * Fy)
+    Zx = Mux * 100 / (0.9 * Fy)
     Zy = Muy * 100 / (0.75 * Fy)
 
     # Information organization
@@ -182,11 +189,14 @@ def design():
     # Display information
     report(**context)
 
+    '''
     # Display image
-    # from PIL import Image
+    from PIL import Image
 
-    # img = Image.open(os.path.join(CURR, "images", "simple_uniform.png"))
-    # img.show()
+    img = Image.open(os.path.join(CURR, "images", "simple_uniform.png"))
+    img.show()
+    '''
+    
 
     #  Create dataframe of selected secction
     df = section_generator(FLAGS.section)
@@ -227,7 +237,7 @@ def design():
     eff(Mux, Muy, As["Zx"], As["Zy"])
     print("--------------------------------------")
 
-    deflection(Wux, Wuy, As["Ix"], As["Iy"])
+    deflection(Wx, Wy, As["Ix"], As["Iy"])
     print("--------------------------------------")
 
     shear(Wuy, As.A, int(As["h"]), int(As["t"]))
@@ -252,14 +262,14 @@ How to used?
 
 -Run script
     use CCL (CCL is default section --> don't provide section flag)
-    % python app/purin.py --L=5 --s=1 --slope=8 --DL=25 --Lr=50 --WL=60
-    % python app/purin.py --L=5 --s=1 --slope=8 --DL=25 --Lr=50 --WL=60 --sagrod=True
+    % python app/purin_lrfd.py --L=5 --s=1 --slope=8 --DL=25 --Lr=50 --WL=60
+    % python app/purin_lrfd.py --L=5 --s=1 --slope=8 --DL=25 --Lr=50 --WL=60 --sagrod=True
 
     use TUBE
-    % python app/purin.py --L=4 --s=1 --slope=8 --DL=25 --Lr=50 --WL=60 --section=Rectangular_Tube.csv
+    % python app/purin_lrfd.py --L=4 --s=1 --slope=8 --DL=25 --Lr=50 --WL=50 --section=Rectangular_Tube.csv
 
     use SQR-TUBE
-    % python app/purin.py --L=4 --s=1 --slope=8 --DL=25 --Lr=50 --WL=60 --section=Square_Tube.csv
+    % python app/purin_lrfd.py --L=4 --s=1 --slope=8 --DL=25 --Lr=50 --WL=50 --section=Square_Tube.csv
 
     another section please see csv file in sections folder
 
