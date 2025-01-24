@@ -1,14 +1,19 @@
 ## LRFD
-
+import sys
 import os
 import numpy as np
 
+
 from tabulate import tabulate
 
-from absl import app, flags, logging
+from absl import app, flags
 from absl.flags import FLAGS
 
-from tools.steel_section import section_generator
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+)  # Add "strd" to sys.path
+
+from utils.utils import section_generator
 
 ## FLAGS definition
 flags.DEFINE_integer("FU", 4000, "ultimate strength, ksc")
@@ -32,24 +37,18 @@ flags.DEFINE_boolean("sagrod", False, "Sag rod at center")
 # Load Case
 def wu(DL, Lr, WL):
     case1 = DL + Lr  # SLS --> w
-    # case2 = 1.4 * DL  # ULS --> wu
-    # case3 = 1.2 * DL + 0.5 * Lr  # ULS --> wu
-    # case4 = 1.2 * DL + 1.6 * Lr + 0.8 * WL  # ULS --> wu
-    # case5 = 1.2 * DL + 1.3 * WL + 0.5 * Lr  # ULS --> wu
-    # return case1, max(case1, case2, case3, case4, case5)  # kN/m2
-
     case2 = 0.75 * (1.4 * DL + 1.7 * Lr) + 1.6 * WL
     case3 = 0.9 * DL + 1.6 * WL
     return case1, max(case1, case2, case3)  # kN/m2
 
-    
+
 def Mu(Wux, Wuy):
     Mux = (1 / 8) * Wuy * FLAGS.L**2  # kg-m
 
     if FLAGS.sagrod == False:
         Muy = (1 / 8) * Wux * FLAGS.L**2  # kg-m
     else:
-        Muy = (1 / 8) * Wux * (0.5 * FLAGS.L)**2  # kg-m
+        Muy = (1 / 8) * Wux * (0.5 * FLAGS.L) ** 2  # kg-m
     print(f"")
 
     return Mux, Muy
@@ -104,10 +103,15 @@ def eff(Mux, Muy, Zx, Zy):
         print(f"Interaction Combine= {eff:.2f} > 1 : Incorrect Section")
 
 
-def deflection(Wux, Wuy, Ix, Iy):
+def deflection(Wx, Wy, Ix, Iy):
     d = 160
-    dx = 5 * (Wux / 100) * ((FLAGS.L * 100) ** 4) / (384 * FLAGS.Es * Iy)
-    dy = 5 * (Wuy / 100) * ((FLAGS.L * 100) ** 4) / (384 * FLAGS.Es * Ix)
+
+    if FLAGS.sagrod == False:
+        dx = 5 * (Wx / 100) * ((FLAGS.L * 100) ** 4) / (384 * FLAGS.Es * Iy)
+    else:
+        dx = 5 * (Wx / 100) * ((0.5 * FLAGS.L * 100) ** 4) / (384 * FLAGS.Es * Iy)
+
+    dy = 5 * (Wy / 100) * ((FLAGS.L * 100) ** 4) / (384 * FLAGS.Es * Ix)
 
     print(f"L/{d} = {FLAGS.L*100/d:.2f} cm \ndx = {dx:.2f} cm \ndy = {dy:.2f} cm")
 
@@ -117,16 +121,22 @@ def deflection(Wux, Wuy, Ix, Iy):
         print("Deflection NOT OK")
 
 
-
 def report(**kwargs):
     x = kwargs
     print("STEEL PURIN DESIGN : LRFD Method")
     print(
         "================================================================================================================================"
     )
-    print(
-        f"MATERIAL PROPERTIES: \nSteel A36  \nFu = 5000 ksc \nFy = 2520 ksc \nEs = 2.04x10^6 ksc"
-    )
+
+    if FLAGS.section == "Z.csv":
+        print(
+            f"MATERIAL PROPERTIES: \n'ROLLFORM' High Tensile Galvanized Purlin  \nFy = {FLAGS.Fy} ksc \nEs = 2.04x10^6 ksc"
+        )
+    else:
+        print(
+            f"MATERIAL PROPERTIES: \nSteel ASTM A36  \nFy = {FLAGS.Fy} ksc \nEs = 2.04x10^6 ksc"
+        )
+
     print(
         f"\nLOAD CASE: \n1 = DL+Lr #SLS \n2 = 0.75*(1.4DL + 1.7Lr) +  1.6WL \n3 = 0.9DL + 1.6WL "
     )
@@ -135,7 +145,9 @@ def report(**kwargs):
     )
 
     print(f"\nCALCULATION")
-    print(f"DL = {x['DL']:.2f} kg/m2, Lr = {x['Lr']:.2f} kg/m2, WL = {x['WL']:.2f} kg/m2")
+    print(
+        f"DL = {x['DL']:.2f} kg/m2, Lr = {x['Lr']:.2f} kg/m2, WL = {x['WL']:.2f} kg/m2"
+    )
     print(f"Wux = {x['Wux']:.2f} kg/m, Wuy = {x['Wuy']:.2f} kg/m")
     print(f"Mux = {x['Mux']:.2f} kg-m, Muy = {x['Muy']:.2f} kg-m")
     print(f"Zx required = {x['Zx']:.2f} cm3 , Zy required = {x['Zy']:.2f} cm3 ")
@@ -187,16 +199,7 @@ def design():
     # Display information
     report(**context)
 
-    '''
-    # Display image
-    from PIL import Image
-
-    img = Image.open(os.path.join(CURR, "images", "simple_uniform.png"))
-    img.show()
-    '''
-    
-
-    #  Create dataframe of selected secction
+    #  Create dataframe of selected section
     df = section_generator(FLAGS.section)
 
     # Filter by Zx, Zy
@@ -216,37 +219,52 @@ def design():
 
     # design
     print(f"\nDESIGN")
-    i = int(input("PLEASE SELECT SECTION : "))
-    As = df.iloc[i]
-    print(
-        tabulate(
-            df.filter(items=[i], axis=0),
-            headers=df.columns,
-            floatfmt=".2f",
-            showindex=True,
-            tablefmt="psql",
+
+    while True:
+        i = int(input("PLEASE SELECT SECTION : "))
+        As = df.iloc[i]
+        print(
+            tabulate(
+                df.filter(items=[i], axis=0),
+                headers=df.columns,
+                floatfmt=".2f",
+                showindex=True,
+                tablefmt="psql",
+            )
         )
-    )
 
-    # CHECK
-    flex(Mux, Muy, As["Zx"], As["Zy"])
-    print("--------------------------------------")
+        # CHECK
+        flex(Mux, Muy, As["Zx"], As["Zy"])
+        print("--------------------------------------")
 
-    eff(Mux, Muy, As["Zx"], As["Zy"])
-    print("--------------------------------------")
+        eff(Mux, Muy, As["Zx"], As["Zy"])
+        print("--------------------------------------")
 
-    deflection(Wx, Wy, As["Ix"], As["Iy"])
-    print("--------------------------------------")
+        deflection(Wx, Wy, As["Ix"], As["Iy"])
+        print("--------------------------------------")
 
-    shear(Wuy, As.A, int(As["h"]), int(As["t"]))
+        shear(Wuy, As.A, int(As["h"]), int(As["t"]))
 
-    # Slenderness
-    print(f"\n Slenderness: ")
-    K = float(input("Define K: "))
-    L = float(input("Define L in m: "))
-    r = float(input("Define r in cm: "))
+        ask = input("Select again : Y|N : ").upper()
+        if ask == "Y":
+            pass
+        else:
+            break
 
-    print(f"KL/r  = {K * L * 1e3 / r:.0f} : 240")
+    # Slenderness in each axis
+    print(f"\nSlenderness Check : ")
+    while True:
+        K = float(input("Define Kx or Ky: "))  # Kx or Ky
+        L = float(input("Define Lx or Ly in m: "))  # Lx or Ly
+        r = float(input("Define rx or ry in cm: "))  # rx or ry
+
+        print(f"KL/r  = {K * L * 1e2 / r:.0f} : 240")
+
+        ask = input("Finish ??? : Y|N : ").upper()
+        if ask == "Y":
+            break
+        else:
+            pass
 
 
 def main(_args):
@@ -268,14 +286,17 @@ How to used?
 
 -Run script
     use CCL (CCL is default section --> don't provide section flag)
-    % python app/purin_lrfd.py --L=5 --s=1 --slope=8 --DL=25 --Lr=50 --WL=60
-    % python app/purin_lrfd.py --L=5 --s=1 --slope=8 --DL=25 --Lr=50 --WL=60 --sagrod=True
+    % python app/purin_lrfd.py --L=6 --s=1 --slope=8 --DL=25 --Lr=50 --WL=60
+    % python app/purin_lrfd.py --L=6 --s=1 --slope=8 --DL=30 --Lr=50 --WL=60 --sagrod=True
 
     use TUBE
     % python app/purin_lrfd.py --L=4 --s=1 --slope=8 --DL=25 --Lr=50 --WL=50 --section=Rectangular_Tube.csv
 
     use SQR-TUBE
     % python app/purin_lrfd.py --L=4 --s=1 --slope=8 --DL=25 --Lr=50 --WL=50 --section=Square_Tube.csv
+
+    use Z
+    % python app/purin_lrfd.py --L=8 --s=1.45 --slope=7 --DL=28 --Lr=30 --WL=80 --section=Z.csv --Fy=4587 --purin=5.74
 
     another section please see csv file in sections folder
 

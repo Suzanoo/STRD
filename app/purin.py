@@ -5,10 +5,10 @@ import numpy as np
 
 from tabulate import tabulate
 
-from absl import app, flags, logging
+from absl import app, flags
 from absl.flags import FLAGS
 
-from tools.steel_section import section_generator
+from utils import section_generator
 
 ## FLAGS definition
 flags.DEFINE_integer("FU", 4000, "ultimate strength, ksc")
@@ -30,7 +30,7 @@ flags.DEFINE_boolean("sagrod", False, "Sag rod at center")
 
 
 def wu(DL, Lr, WL):
-    case1 = DL + 0.75 * (Lr + WL)  
+    case1 = DL + 0.75 * (Lr + WL)
     case2 = 0.6 * DL + WL
 
     return max(case1, case2)
@@ -42,7 +42,7 @@ def Mu(Wux, Wuy):
     if FLAGS.sagrod == False:
         Muy = (1 / 8) * Wux * FLAGS.L**2  # kg-m
     else:
-        Muy = (1 / 8) * Wux * (0.5 * FLAGS.L)**2  # kg-m
+        Muy = (1 / 8) * Wux * (0.5 * FLAGS.L) ** 2  # kg-m
 
     print(f"")
 
@@ -53,20 +53,19 @@ def flex(Mux, Muy, Zx, Zy):
     Fbx = 0.6 * FLAGS.Fy  # ksc
     Fby = 0.75 * FLAGS.Fy  # ksc
 
-    Mnx = Fbx * Zx *1e-2  # kg-m 
-    Mny = Fby * Zy *1e-2   # kg-m
-
+    Mnx = Fbx * Zx * 1e-2  # kg-m
+    Mny = Fby * Zy * 1e-2  # kg-m
 
     if Mnx > Mny:
-        Mn = Mnx 
-        Mu = Mux 
+        Mn = Mnx
+        Mu = Mux
         print(f"Mn/Ω = {Mn:.2f} kN-m, Mu = {Mu:.2f} kN-m")
         if Mn >= Mu:
             print("Flexural Resistance OK")
         else:
             print("Flexural Resistance NOT OK")
     else:
-        Mn = Mny 
+        Mn = Mny
         Mu = Muy
         print(f"Mn/Ω = {Mn:.2f} kN-m, Mu = {Mu:.2f} kN-m")
         if Mn >= Mu:
@@ -74,9 +73,10 @@ def flex(Mux, Muy, Zx, Zy):
         else:
             print("Flexural Resistance NOT OK")
 
+
 def shear(Wuy, A, H, T):
     Fv = 0.4 * FLAGS.Fy  # ksc
-    Vu = 0.5 * Wuy * FLAGS.L # kg
+    Vu = 0.5 * Wuy * FLAGS.L  # kg
 
     Vnt = Fv * A  # kg
     Vnh = Fv * H * T / 100  # kg
@@ -103,7 +103,11 @@ def eff(Mux, Muy, Zx, Zy):
 
 def deflection(Wux, Wuy, Ix, Iy):
     d = 160
-    dx = 5 * (Wux / 100) * ((FLAGS.L * 100) ** 4) / (384 * FLAGS.Es * Iy)
+    if FLAGS.sagrod == False:
+        dx = 5 * (Wux / 100) * ((FLAGS.L * 100) ** 4) / (384 * FLAGS.Es * Iy)
+    else:
+        dx = 5 * (Wux / 100) * ((0.5 * FLAGS.L * 100) ** 4) / (384 * FLAGS.Es * Iy)
+
     dy = 5 * (Wuy / 100) * ((FLAGS.L * 100) ** 4) / (384 * FLAGS.Es * Ix)
 
     print(f"L/{d} = {FLAGS.L*100/d:.2f} cm \ndx = {dx:.2f} cm \ndy = {dy:.2f} cm")
@@ -112,7 +116,6 @@ def deflection(Wux, Wuy, Ix, Iy):
         print("Deflection OK")
     else:
         print("Deflection NOT OK")
-
 
 
 def report(**kwargs):
@@ -130,7 +133,9 @@ def report(**kwargs):
     )
 
     print(f"\nCALCULATION")
-    print(f"DL = {x['DL']:.2f} kg/m2, Lr = {x['Lr']:.2f} kg/m2, WL = {x['WL']:.2f} kg/m2")
+    print(
+        f"DL = {x['DL']:.2f} kg/m2, Lr = {x['Lr']:.2f} kg/m2, WL = {x['WL']:.2f} kg/m2"
+    )
     print(f"Wux = {x['Wux']:.2f} kg/m, Wuy = {x['Wuy']:.2f} kg/m")
     print(f"Mux = {x['Mux']:.2f} kg-m, Muy = {x['Muy']:.2f} kg-m")
     print(f"Zx required = {x['Zx']:.2f} cm3 , Zy required = {x['Zy']:.2f} cm3 ")
@@ -182,12 +187,6 @@ def design():
     # Display information
     report(**context)
 
-    # Display image
-    # from PIL import Image
-
-    # img = Image.open(os.path.join(CURR, "images", "simple_uniform.png"))
-    # img.show()
-
     #  Create dataframe of selected secction
     df = section_generator(FLAGS.section)
 
@@ -232,13 +231,20 @@ def design():
 
     shear(Wuy, As.A, int(As["h"]), int(As["t"]))
 
-    # Slenderness
-    print(f"\n Slenderness: ")
-    K = float(input("Define K: "))
-    L = float(input("Define L in m: "))
-    r = float(input("Define r in cm: "))
+    # Slenderness in each axis
+    print(f"\nSlenderness: ")
+    while True:
+        K = float(input("Define K: "))  # Kx or Ky
+        L = float(input("Define L in m: "))  # Lx or Ly
+        r = float(input("Define r in cm: "))  # rx or ry
 
-    print(f"KL/r  = {K * L * 1e3 / r:.0f} : 240")
+        print(f"KL/r  = {K * L * 1e2 / r:.0f} : 240")
+
+        ask = input("Finish ??? : Y|N : ").upper()
+        if ask == "Y":
+            break
+        else:
+            pass
 
 
 def main(_args):

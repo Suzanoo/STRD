@@ -1,17 +1,21 @@
-# rafter DESIGN : CASE OVERHANG : ASD METHOD
+# rafter DESIGN :
+import sys
 import os
 import numpy as np
-import pandas as pd
 
 from tabulate import tabulate
 
-from absl import app, flags, logging
+from absl import app, flags
 from absl.flags import FLAGS
 
-from tools.steel_section import section_generator
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+)  # Add "strd" to sys.path
+
+from utils.utils import section_generator
 
 ## FLAGS definition
-flags.DEFINE_integer("FU", 490, "ultimate strength, MPa")
+flags.DEFINE_integer("Fu", 490, "ultimate strength, MPa")
 flags.DEFINE_integer("Fy", 245, "yeild strength, MPa")
 flags.DEFINE_float("Es", 2.04e6, "Youngs modulus, MPA")
 
@@ -88,9 +92,7 @@ def delta(w, l, a, Ix):
         - 2 * (a**2) * (l**2)
         + 2 * (a**2) * x**2
     )
-    Δend = ((10**7) * w * a / (24 * FLAGS.Es * Ix)) * (
-        4 * l * (a**2) - l**3 + 3 * a**3
-    )
+    Δend = ((10**7) * w * a / (24 * FLAGS.Es * Ix)) * (4 * l * (a**2) - l**3 + 3 * a**3)
 
     print(f"L/200 = {l*100/200:.2f} cm, Δx = {Δx:.2f} cm, Δend = {Δend:.2f} cm")
 
@@ -150,17 +152,17 @@ def check(Pu, wy, As, Muz, Vuy):
     # Slenderness in each axis
     print(f"\nSlenderness: ")
     while True:
-        K = float(input("Define K: ")) # Kx or Ky
-        L = float(input("Define L in m: ")) # Lx or Ly
-        r = float(input("Define r in cm: ")) # rx or ry
+        K = float(input("Define K: "))  # Kx or Ky
+        L = float(input("Define L in m: "))  # Lx or Ly
+        r = float(input("Define r in cm: "))  # rx or ry
 
-        print(f"KL/r  = {K * L * 1e3 / r:.0f} : 240")
+        print(f"KL/r  = {K * L * 1e2 / r:.0f} : 240")
 
         ask = input("Finish ??? : Y|N : ").upper()
         if ask == "Y":
             break
         else:
-            pass 
+            pass
 
 
 def report(**kwargs):
@@ -170,7 +172,7 @@ def report(**kwargs):
         "================================================================================================================================"
     )
     print(
-        f"MATERIAL PROPERTIES: \nSteel A36  \nFu = {FLAGS.FU} MPa \nFy = {FLAGS.Fy} MPa \nEs = {FLAGS.Es} MPa"
+        f"MATERIAL PROPERTIES: \nSteel A36  \nFu = {FLAGS.Fu} MPa \nFy = {FLAGS.Fy} MPa \nEs = {FLAGS.Es} MPa"
     )
     print(
         f"\nLOAD CASE: \n1 = DL+Lr #SLS \n2 = 0.75*(1.4DL + 1.7Lr) +  1.6WL \n3 = 0.9DL + 1.6WL "
@@ -216,13 +218,6 @@ def design():
         "Muz": Muz,
         "Zx": Zx,
     }
-
-    # CURR = os.getcwd()
-
-    # from PIL import Image
-
-    # img = Image.open(os.path.join(CURR, "images", "beam_overhang.png"))
-    # img.show()
 
     report(**context)
 
@@ -275,7 +270,7 @@ How to used?
     % conda activate <your conda env name>
 
     use CCL (CCL is default section --> don't provide section flag)
-    % python app/hip.py --l=3.5  --slope=15 --DL=79 --Lr=30 --WL=50 --w=6--b=6
+    % python app/hip.py --l=3.5  --slope=15 --DL=79 --Lr=30 --WL=50 --w=6 --b=6
 
     use TUBE
     % python app/hip.py --l=3.5  --slope=23 --DL=94 --Lr=30 --WL=50 --w=6.9 --b=3.9 --section=Rectangular_Tube.csv

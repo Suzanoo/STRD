@@ -1,18 +1,23 @@
 # RIDGE DESIGN: LRFD METHOD
 # Use reaction from rafter become load to ridge
+import sys
 import os
 import numpy as np
-import pandas as pd
+
 
 from tabulate import tabulate
 
-from absl import app, flags, logging
+from absl import app, flags
 from absl.flags import FLAGS
 
-from tools.steel_section import section_generator
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+)  # Add "strd" to sys.path
+
+from utils.utils import section_generator
 
 ## FLAGS definition
-flags.DEFINE_integer("FU", 490, "ultimate strength, MPa")
+flags.DEFINE_integer("Fu", 490, "ultimate strength, MPa")
 flags.DEFINE_integer("Fy", 245, "yeild strength, MPa")
 flags.DEFINE_float("Es", 2.04e6, "Youngs modulus, MPA")
 
@@ -47,7 +52,7 @@ def Mu(w, l, a):
 
 def flex(Mu, Zx):
     Fb = FLAGS.Fy
-    𝜙Mn = 0.9 * Fb * Zx *1e-3  # kN-m
+    𝜙Mn = 0.9 * Fb * Zx * 1e-3  # kN-m
     print(f"𝜙Mn = {𝜙Mn:.2f} kN-m, Mu = {Mu:.2f} kN-m")
 
     if 𝜙Mn >= Mu:
@@ -76,9 +81,7 @@ def delta(w, l, a, Ix):
         - 2 * (a**2) * (l**2)
         + 2 * (a**2) * x**2
     )
-    Δend = ((10**7) * w * a / (24 * FLAGS.Es * Ix)) * (
-        4 * l * (a**2) - l**3 + 3 * a**3
-    )
+    Δend = ((10**7) * w * a / (24 * FLAGS.Es * Ix)) * (4 * l * (a**2) - l**3 + 3 * a**3)
 
     print(f"L/200 = {l*100/200:.2f} cm, Δx = {Δx:.2f} cm, Δend = {Δend:.2f} cm")
 
@@ -124,17 +127,17 @@ def check(Pu, Wu, As, Muz, Vuy):
     # Slenderness in each axis
     print(f"\nSlenderness: ")
     while True:
-        K = float(input("Define K: ")) # Kx or Ky
-        L = float(input("Define L in m: ")) # Lx or Ly
-        r = float(input("Define r in cm: ")) # rx or ry
+        K = float(input("Define K: "))  # Kx or Ky
+        L = float(input("Define L in m: "))  # Lx or Ly
+        r = float(input("Define r in cm: "))  # rx or ry
 
-        print(f"KL/r  = {K * L * 1e3 / r:.0f} : 240")
+        print(f"KL/r  = {K * L * 1e2 / r:.0f} : 240")
 
         ask = input("Finish ??? : Y|N : ").upper()
         if ask == "Y":
             break
         else:
-            pass 
+            pass
 
 
 def report(**kwargs):
@@ -144,7 +147,7 @@ def report(**kwargs):
         "================================================================================================================================"
     )
     print(
-        f"MATERIAL PROPERTIES: \nSteel A36  \nFu = {FLAGS.FU} MPa \nFy = {FLAGS.Fy} MPa \nEs = {FLAGS.Es} MPa"
+        f"MATERIAL PROPERTIES: \nSteel A36  \nFu = {FLAGS.Fu} MPa \nFy = {FLAGS.Fy} MPa \nEs = {FLAGS.Es} MPa"
     )
     print(
         f"\nLOAD CASE: \n1 = DL+Lr #SLS \n2 = 0.75*(1.4DL + 1.7Lr) +  1.6WL \n3 = 0.9DL + 1.6WL "
@@ -164,7 +167,7 @@ def design():
     a = FLAGS.a
 
     # CALCULATION
-    Wu = FLAGS.Wu + FLAGS.ridge * 9.82 * 1e-3 # kN/m 
+    Wu = FLAGS.Wu + FLAGS.ridge * 9.82 * 1e-3  # kN/m
 
     R1, R2, Vuy, Muz, Zx = cal(Wu, l, a)
 
@@ -178,13 +181,6 @@ def design():
         "Muz": Muz,
         "Zx": Zx,
     }
-
-    # CURR = os.getcwd()
-
-    # from PIL import Image
-
-    # img = Image.open(os.path.join(CURR, "images", "beam_overhang.png"))
-    # img.show()
 
     report(**context)
 
