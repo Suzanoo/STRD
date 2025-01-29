@@ -1,17 +1,21 @@
+import sys
 import os
 
 from time import sleep
 from tabulate import tabulate
 
-from design.compression import Compression
-from design.flexural import WF_CHN
-from design.interaction import Interaction
-from properties import wt_ratio as wt
-
 from absl import app, flags
 from absl.flags import FLAGS
 
-from tools.steel_section import section_generator
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+)  # Add "strd" to sys.path
+
+from calculator.compression import Compression
+from calculator.flexural import WF_CHN
+from calculator.interaction import Interaction
+from tools import wt_ratio as wt
+from utils import section_generator
 
 # Flag definition :
 # MATERIAL PROPERTIES : default SS400
@@ -51,13 +55,14 @@ def compression(label, section):
 
     # if no bracing use full length
     if FLAGS.Lbx == 0 or FLAGS.Lby == 0:
-        Lb = FLAGS.L  
+        Lb = FLAGS.L
     # use bracing length
     else:
-        Lb = max(FLAGS.Lbx, FLAGS.Lby)  
+        Lb = max(FLAGS.Lbx, FLAGS.Lby)
 
     øPn = axial.call(label, FLAGS.K, Lb, section["ry"], section["A"], FLAGS.Pu)
     return øPn
+
 
 # Calculateed øMn
 def flexural(label, flange, section):

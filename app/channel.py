@@ -1,15 +1,20 @@
+import sys
+import os
+
 from time import sleep
 from tabulate import tabulate
 
-from design.compression import Compression
-from design.flexural import Flexural
-from design.interaction import Interaction
-from properties import wt_ratio as wt
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))  #
+
+from calculator.compression import Compression
+from calculator.flexural import Flexural
+from calculator.interaction import Interaction
+from tools import wt_ratio as wt
 
 from absl import app, flags
 from absl.flags import FLAGS
 
-from tools.steel_section import section_generator
+from utils import section_generator
 
 # Flag definition :
 # MATERIAL PROPERTIES : default SS400

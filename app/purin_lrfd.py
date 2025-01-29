@@ -1,5 +1,4 @@
 ## LRFD
-import sys
 import os
 import numpy as np
 
@@ -9,11 +8,8 @@ from tabulate import tabulate
 from absl import app, flags
 from absl.flags import FLAGS
 
-sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-)  # Add "strd" to sys.path
 
-from utils.utils import section_generator
+from utils import section_generator
 
 ## FLAGS definition
 flags.DEFINE_integer("FU", 4000, "ultimate strength, ksc")

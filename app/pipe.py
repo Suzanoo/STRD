@@ -1,16 +1,20 @@
+import sys
+import os
+
 from time import sleep
 from tabulate import tabulate
 
-from design.compression import Compression
-import design.flexural as Flexural
-from design.interaction import Interaction
-from properties import wt_ratio as wt
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))  #
+
+from calculator.compression import Compression
+import calculator.flexural as Flexural
+from calculator.interaction import Interaction
+from tools import wt_ratio as wt
 
 from absl import app, flags
 from absl.flags import FLAGS
 
-
-from tools.steel_section import section_generator
+from utils import section_generator
 
 # Flag definition :
 # MATERIAL PROPERTIES : default SS400
@@ -219,9 +223,9 @@ How to used?
     % conda activate <your conda env name>
 
     Axial load only:
-    % python steel/pipe.py --L=5 --Pu=150 
+    % python app/pipe.py --L=5 --Pu=150 
 
     Axial load + Flexural
-    % python steel/pipe.py --L=5 --Lbx=2.5 --Pu=150 --Mux=25
-    % python steel/pipe.py --L=5 --Lbx=2.5 --Lby=2.5 --Pu=150 --Mux=25 --Muy=5
+    % python app/pipe.py --L=5 --Lbx=2.5 --Pu=150 --Mux=25
+    % python app/pipe.py --L=5 --Lbx=2.5 --Lby=2.5 --Pu=150 --Mux=25 --Muy=5
 """

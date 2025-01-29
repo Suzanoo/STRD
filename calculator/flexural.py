@@ -1,8 +1,8 @@
 import numpy as np
 
-from properties import wt_ratio as wt
-from properties import torsion_props as tor
-from properties.section_modulus import hollow_rect
+from tools import wt_ratio as wt
+from tools import torsion_props as tor
+from tools.section_modulus import hollow_rect
 
 """
 Failure moode:
@@ -145,7 +145,7 @@ class WF_CHN:
     # --------------------------------
     # H,C : y-y axis, wec=C, flange=C --> Y
     # H,C : y-y axis, wec=C, flange=NC,S --> Y, FLB
-    
+
     # for minor axis
     def yeild_minor(self):
         Sy = self.Sy * 1e3  # mm3

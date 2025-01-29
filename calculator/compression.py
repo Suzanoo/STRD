@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Compression:
     def __init__(self, Fy, Es, øc):
         self.Fy = Fy
@@ -8,8 +9,10 @@ class Compression:
 
     def eff_length(self):
         self.d = np.floor(self.K * self.Lb * 100 / self.r)  # KL/r
-        print(f"KL/r = {self.d:.2f} < 200 : OK") if self.d < 200 else print(
-            f"KL/r = {self.d:.2f} > 200 : Slender"
+        (
+            print(f"KL/r = {self.d:.2f} < {self.limit} : OK")
+            if self.d < self.limit
+            else print(f"KL/r = {self.d:.2f} > {self.limit} : Slender")
         )
 
     """
@@ -47,7 +50,7 @@ class Compression:
     def slender_section(self):
         pass
 
-    def call(self, label, K, Lb, r, A, Pu):
+    def call(self, label, K, Lb, r, A, Pu, limit=300):
         """
         C = compact
         NC = non-compact
@@ -62,6 +65,7 @@ class Compression:
         self.Lb = Lb
         self.r = r
         self.A = A
+        self.limit = limit
 
         # C, NC : 'H', '[]', 'O', 'composit H'
         if label == 1:
@@ -85,8 +89,10 @@ class Compression:
             if (self.Lb / self.r > 80) and (self.Lb / self.r < 200):
                 self.d = np.floor(32 + 1.25 * (self.Lb / self.r))
 
-            print(f"KL/r = {self.d:.2f} < 200 : OK") if self.d < 200 else print(
-                f"KL/r = {self.d:.2f} > 200 : Slender"
+            (
+                print(f"KL/r = {self.d:.2f} < {self.limit} : OK")
+                if self.d < self.limit
+                else print(f"KL/r = {self.d:.2f} > {self.limit} : Slender")
             )
             self.Fcr = self.flexural_control()  # -, m, m, cm, cm
 

@@ -14,7 +14,7 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 )  # Add "strd" to sys.path
 
-from utils.utils import (
+from app.utils import (
     get_valid_integer,
     get_valid_number,
     get_valid_list_input,
