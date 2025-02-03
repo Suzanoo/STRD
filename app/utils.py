@@ -54,7 +54,7 @@ def get_valid_list_input(prompt, N):
             )
 
 
-def section_generator(section):
+def df_generator(section):
     # Dataframe of steel section
     df = pd.read_csv(os.path.join(CURR, "data/sections", section))
 
@@ -68,34 +68,42 @@ def section_generator(section):
     return df
 
 
-def display_df(df):
+def display_df(df, index=False):
     print(f"\nDATABASE")
     print(
         tabulate(
             df,
             headers=df.columns,
             floatfmt=".2f",
-            showindex=False,
+            showindex=index,
             tablefmt="psql",
         )
     )
 
 
-# Assembly X-coordinate
-def xi_coordinate(spans):
-    numS = 1000  # Number of points per span
-    Xt = [np.linspace(0, span, numS) for span in spans]
-    return numS, Xt
+def select_label():
+    # Display cases
+    print(
+        f"""
+        label = 1 : major axis, H,C : web=C, flang=C --> Y, LTB
+        label = 2 : major axis, H : web=C, flang=NC,S --> Y, LTB, FLB
+        lebel = 3 : major axis, H : web=NC, --> Yc, Yt, LTB, FLB, TFY
+        """
+    )
+    while True:
+        label = get_valid_integer("label = ? : ")
+        if label in [1, 2, 3]:
+            break
+        else:
+            print("Label not in [1,2,3] Try again!")
+    return label
 
 
-# X-coordinate
-def X_coordinate(spans, stretch, Xt):
-    X = []
-    temp = 0
-    for i in range(len(spans)):
-        if i > 0:
-            temp += stretch[i - 1].L
-        Xprov = Xt[i] + temp
-        Xlist = Xprov.tolist()
-        X += Xlist
-    return X
+def select_flange():
+    while True:
+        flange = input("flange = ? : [C, NC, S] : ").upper()
+        if flange in ["C", "NC", "S"]:
+            break
+        else:
+            print("Flange not in [C, NC, S] Try again!")
+    return flange

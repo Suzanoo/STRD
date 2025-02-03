@@ -1,8 +1,5 @@
 import numpy as np
 
-from tools import wt_ratio as wt
-from tools import torsion_props as tor
-from tools.section_modulus import hollow_rect
 
 """
 Failure moode:
@@ -23,10 +20,10 @@ H : x-x axis, web=C, flang=NC,S --> Y, LTB, FLB
 H,C : y-y axis, wec=C, flange=C --> Y
 H,C : y-y axis, wec=C, flange=NC,S --> Y, FLB
 
-H : web=C,NC, flang=C,NC,S --> Y, LTB, FLB, TFY
+H : web=NC --> Y, LTB, FLB, TFY
 H : web=S, flange=C,NC,S --> Y, LTB, FLB, TFY
-[] : web=C,NC, flange=C,NC,S --> Y,FLB,WLB
-T, double-L : flange=C,NC,S -->Y,LTB,FLB
+[] : web=C,NC, flange=C,NC,S --> Y, FLB, WLB
+T, double-L : flange=C,NC,S -->Y, LTB ,FLB
 L --> Y,LTB,LLB
 O --> Y,LB
 """
@@ -36,400 +33,243 @@ def cb(Mmax, Ma, Mb, Mc):
     return 12.5 * Mmax / (2.5 * Mmax + 3 * Ma + 4 * Mb + 3 * Mc)
 
 
-# ==============================
-## WF, H, CHN
-# ==============================
-class WF_CHN:
-    def __init__(self, Fy, Es):
-        self.Fy = Fy  # MPa
-        self.Es = Es  # MPa
+def calc_var(section, Fy, Es, Lb, Sxc, Iyc, Myc):
+    Iy = section.Iy * 1e4  # mm4
 
-    def h_section_definition(self, section):
-        self.H = section["H"]
-        self.B = section["B"]
-        self.tw = section["tw"]
-        self.tf = section["tf"]
-        self.A = section["A"]
-        self.Ix = section["Ix"]
-        self.Iy = section["Iy"]
-        self.rx = section["rx"]
-        self.ry = section["ry"]
-        self.Sx = section["Sx"]
-        self.Sy = section["Sy"]
-        self.Zx = section["Zx"]
-        self.Zy = section["Zy"]
+    h0 = section.H - section.tf  # mm
+    hc = section.H - 2 * section.tf  # mm
+    h = section.H - 2 * section.tf  # mm
+    d = section.H  # mm
+    aw = hc * section.tw / (section.B * section.tf)
+    rt = section.B / np.sqrt(12 * ((h0 / d) + (aw / 6) + (h * h / (h0 * d))))
 
-        T = tor.Torsion
-        self.J, self.Cw = T.torsion_h(
-            self.B, self.H, self.tf, self.tw, self.Ix, self.Iy
-        )  # mm4, mm6
+    if Iyc / Iy <= 0.23:
+        J = 0
 
-    def chn_definition(self, section):
-        # ['H', 'B', 'tf', 'tw', 'r1', 'r2', 'A', 'Wt', 'Cx', 'Cy', 'Ix', 'Iy', 'rx', 'ry', 'Zx', 'Zy']
-        self.H = section["H"]
-        self.B = section["B"]
-        self.tw = section["tw"]
-        self.tf = section["tf"]
-        self.A = section["A"]
-        self.Ix = section["Ix"]
-        self.Iy = section["Iy"]
-        self.rx = section["rx"]
-        self.ry = section["ry"]
-        self.Sx = section["Zx"]
-        self.Sy = section["Zy"]
-        self.Zx = section["Zx"]
-        self.Zy = section["Zy"]
+    K1 = J / (Sxc * h0)
+    K2 = (Lb / rt) ** 2
 
-        T = tor.Torsion
-        self.J, self.Cw = T.torsion_chn(self.B, self.H, self.tf, self.tw)  # mm4, mm6
+    FL = 0.7 * Fy
+    Lp = 1.1 * rt * np.sqrt(Es / Fy)  # mm
+    Lr = (
+        1.95 * rt * (Es / (FL)) * np.sqrt(K1 + np.sqrt((K2) + 6.76 * (FL / Es) ** 2))
+    )  # mm
 
-    # ==============================
+    return Lp, Lr, FL, K1, K2
+
+
+class Yeild:
+    def __init__(self, materials):
+        self.Fy = materials.Fy
+        self.Es = materials.Es
+
+    def major_axis(self, Zx):
+        øMp = 0.9 * self.Fy * Zx * 1e-3  # kN-m
+        print(f"Yeild : øMp = {øMp:.2f} kN-m")
+        return øMp
+
+    # 5.6.1 H, C : minor axis
+    def minor_axis(self, Sy, Zy):
+        øMpy = (
+            0.9
+            * (
+                self.Fy * Zy
+                if self.Fy * Zy < 1.6 * self.Fy * Sy
+                else 1.6 * self.Fy * Sy
+            )
+            * 1e-3
+        )  # kN-m
+        print(f"Yeild : øMpy = {øMpy:.2f} kN-m")
+        return øMpy
+
+    # 5.4.1 H : Major axis : Yc for NC-web
+    def nc_web_yc(self, Sxc, Rpc):
+        øMn = 0.9 * Rpc * self.Fy * Sxc * 1e-3  # kN-m
+        print(f"Flange : Compression yeild, øMn : {øMn:.2f} kN-m")
+        return øMn
+
+    # 5.4.1 Major axis : Yt for NC-web
+    def nc_web_yt(self, Sxt, Rpt):
+        øMn = 0.9 * Rpt * self.Fy * Sxt * 1e-3  # kN-m
+        print(f"Flange : Tension yeild, øMn : {øMn:.2f} kN-m")
+        return øMn
+
+    # 5.5.1 H : Majoraxis : Slender web
+
+
+# flange lateral bulking
+class FLB:
+    def __init__(self, materials):
+        self.Fy = materials.Fy
+        self.Es = materials.Es
+
+    # 5.3.2 : H : Major axis, web=C, flang=NC,S --> Y, LTB, FLB
+    def hc_major(self, section, Mp, λpf, λrf, flange="NC"):
+        Mp = Mp * 1e6  # N-mm
+        Sx = section.Sx * 1e3  # mm3
+
+        λ = section.B / (2 * section.tf)
+
+        if flange == "S":  # slender
+            h = section.H - section.tf  # mm
+            Kc = max(0.76, 4 / np.sqrt(h / section.tw))
+            øMn = 0.9 * (0.9 * self.Es * Kc * Sx / (λ**2)) * 1e-6  # KN-m
+        else:  # non-compact
+            øMn = (
+                0.9
+                * (Mp - (Mp - 0.7 * self.Fy * Sx * np.abs((λ - λpf) / (λrf - λpf))))
+                * 1e-6
+            )
+
+        print(f"Flange lateral bulking control, øMcr : {øMn:.2f} kN-m")
+        return øMn
+
+    # H,C : Minor axis, web=C, flange=NC,S --> Y, FLB
+    def hc_minor(self, section, b, Mpy, λpf, λrf, flange="C"):
+        Mpy = Mpy * 1e6  # N-mm
+        Sy = section.Sy * 1e3  # mm3
+
+        λ = b / (2 * section.tf)
+
+        if flange == "NC":
+            øMn = (
+                0.9
+                * (Mpy - (Mpy - 0.7 * self.Fy * Sy * np.abs((λ - λpf) / (λrf - λpf))))
+                * 1e-6
+            )  # kN-m
+
+        elif flange == "S":
+            Fcr = 0.69 * self.Es / (b / section.tf) ** 2  # N/mm2
+            øMn = 0.9 * (Fcr * self.Fy) * 1e-6  # kN-m
+
+        else:
+            print("No Flange lateral bulking effect")
+            return
+
+        print(f"flange lateral bulking control, øMcr : {øMn:.2f} kN-m")
+        return øMn
+
+    # H : Major axis, NC-Web
+    def nc_web(self, section, λpf, λrf, Sxc, Myc, Rpc, flange="NC"):
+
+        Sxc = Sxc * 1e3  # mm3
+        Myc = Myc * 1e6  # N-mm
+
+        FL = 0.7 * self.Fy
+        λ = section.B / (2 * section.tf)
+
+        if flange == "NC":
+            øMn = (
+                0.9
+                * (Rpc * Myc - (Rpc * Myc - FL * Sxc * np.abs((λ - λpf) / (λrf - λpf))))
+                * 1e-6
+            )  # kN-m
+        elif flange == "S":
+            h = section.H - section.tf  # mm
+            Kc = max(0.76, 4 / np.sqrt(h / section.tw))
+            øMn = 0.9 * (0.9 * self.Es * Kc * Sxc / (λ**2)) * 1e-6  # KN-m
+        else:
+            print("No Flange lateral bulking effect")
+            return
+
+        print(f"Flange lateral bulking control, øMcr : {øMn:.2f} kN-m")
+        return øMn
+
+    # TODO # 5.5.3 H : Majoraxis : Slender web
+
+    # 5.7.2 Box
+    def box(self, b, tf, S, Mp, flange="NC"):
+        if flange == "NC":
+            øMn = (
+                0.9
+                * (
+                    Mp
+                    - (Mp - 0.7 * self.Fy * S)
+                    * (3.57 * (b / tf) * np.sqrt(self.Fy / self.Es) - 4)
+                )
+                * 1e-6
+            )
+        elif flange == "S":
+            øMn = 0.9 * self.Fy * S * 1e-6
+        else:
+            print("No Flange lateral bulking effect")
+            return
+        print(f"Flange lateral bulking control :  øMcr : {øMn:.2f} kN-m")
+        return øMn
+
+
+# lateral-torsional bulking
+class LTB:
+    def __init__(self, materials):
+        self.Fy = materials.Fy
+        self.Es = materials.Es
+
+    # 5.2.2
     # H,C : x-x axis, web=C, flang=C --> Y, LTB
     # H : x-x axis, web=C, flang=NC,S --> Y, LTB, FLB
-    # for major axis
-    def yeild(self):
-        self.Mp = self.Fy * self.Zx * 1e-3  # kN-m
-        print(f"plastic moment, øMp : {0.9*self.Mp:.2f} kN-m")
-
-    # LTB for major axis
-    def ltb(self, Lb, c, Cb):  # m, _unit in table
+    def hc_major(self, section, Mp, Lb, Cb, J, Cw, channel=False):  # m, _unit in table
         Lb = Lb * 1e3  # mm
-        ry = self.ry * 10  # mm
-        Iy = self.Iy * 1e4  # mm4
-        Sx = self.Sx * 1e3  # mm3
+        ry = section.ry * 10  # mm
+        Iy = section.Iy * 1e4  # mm4
+        Sx = section.Sx * 1e3  # mm3
+
+        h0 = section.H - section.tf  # mm
+        rts = np.sqrt((np.sqrt(Iy * Cw)) / Sx)  # mm
+        c = 1
+
+        if channel == True:
+            c = (h0 / 2) * np.sqrt(Iy / Cw)
+
+        K1 = J * c / (Sx * h0)
+        K2 = (Lb / rts) ** 2
 
         Lp = 1.76 * ry * np.sqrt(self.Es / self.Fy)  # mm
-
-        h0 = self.H - self.tf  # mm
-        K = self.J * c / (Sx * h0)
-        rts = np.sqrt((np.sqrt(Iy * self.Cw)) / Sx)  # mm
         Lr = (
             1.95
             * rts
             * (self.Es / (0.7 * self.Fy))
-            * np.sqrt(K + np.sqrt((K**2) + 6.76 * (0.7 * self.Fy / self.Es) ** 2))
+            * np.sqrt(K1 + np.sqrt((K1**2) + 6.76 * (0.7 * self.Fy / self.Es) ** 2))
         )  # mm
-        Cb = Cb
-        Mp = self.Mp * 1e6  # N-mm
 
         if Lb < Lp:
-            Mn = Mp  # N-mm
+            print("No lateral-torsional bulking effect")
         elif Lb > Lp and Lb < Lr:
-            Mn = Cb * (Mp - (Mp - 0.7 * self.Fy * Sx) * (Lb - Lp) / (Lr - Lp))  # N-mm
+            Mn = (
+                Cb * (Mp - (Mp - 0.7 * self.Fy * Sx) * (Lb - Lp) / (Lr - Lp)) * 1e-6
+            )  # kN-m
         else:  # Lb > Lr
-            R = (Lb / rts) ** 2
-            Fcr = (Cb * self.Es * np.pi**2) * (np.sqrt(1 + 0.0078 * K * R)) / R  # MPa
-            Mn = Fcr * Sx  # N-mm
+            Fcr = (Cb * self.Es * np.pi**2) * (np.sqrt(1 + 0.078 * K1 * K2)) / K2  # MPa
+            Mn = Fcr * Sx * 1e-6  # N-mm
 
-        øMn = 0.9 * Mn * 1e-6 if Mn < Mp else 0.9 * Mp * 1e-6  # kN-m
-        print(f"lateral-torsional bulking, øMcr : {øMn:.2f} kN-m")
+        øMn = 0.9 * min(Mn, Mp)
+
+        print(f"Lateral-torsional bulking control, øMcr : {øMn:.2f} kN-m")
         return øMn  # kN-m
 
-    # FLB for major axis
-    def flb(self, flange="NC"):
-        Sx = self.Sx * 1e3  # mm3
-        R = wt.WT_flexural(self.Fy, self.Es)
-        λpf, λrf, λpw, λrw = R.h_section(self.B, self.H, self.tf, self.tw)
-        λ = self.B / (4 * self.tf)
-        if flange == "NC":  # non-compact
-            Mp = self.Mp * 1e6  # N-mm
-            Mn = Mp - (Mp - 0.7 * self.Fy * Sx * np.abs((λ - λpf) / (λrf - λpf)))
-        if flange == "S":  # slender
-            h = self.H - self.tf
-            Kc = max(0.35, 4 / np.sqrt(h / self.tw))
-            Mn = 0.9 * self.Es * Kc * Sx / (λ**2)
-        øMn = 0.9 * Mn * 1e-6  # KN-m
-        print(f"flange lateral bulking, øMcr : {øMn:.2f} kN-m")
-        return øMn
+    # 5.4.2
+    # H : Major axis, NC-Web --> Yc, Yt, LTB, FLB, TFY
+    def nc_web(self, section, Lb, Sxc, Iyc, Myc, Rpc, Cb=1):  # m, _unit in table
+        Lb = Lb * 1e3  # mm
+        Iyc = Iyc * 1e4  # mm
+        Sxc = Sxc * 1e3  # mm3
+        Myc = Myc * 1e6  # N-mm
 
-    # --------------------------------
-    # H,C : y-y axis, wec=C, flange=C --> Y
-    # H,C : y-y axis, wec=C, flange=NC,S --> Y, FLB
-
-    # for minor axis
-    def yeild_minor(self):
-        Sy = self.Sy * 1e3  # mm3
-        Zy = self.Zy * 1e3  # mm3
-
-        Mpy = self.Fy * Zy  # N-mm
-        self.Mpy = Mpy if Mpy < 1.6 * self.Fy * Sy else 1.6 * self.Fy * Sy  # N-mm
-        print(f"plastic moment, øMpy : {0.9*self.Mpy*1e-6:.2f} kN-m")
-
-    # for minor axis
-    def flb_minor(self, flange="C"):
-        Sy = self.Sy * 1e3  # mm3
-        R = wt.WT_flexural(self.Fy, self.Es)
-        λpf, λrf, λpw, λrw = R.h_section(self.B, self.H, self.tf, self.tw)
-        λ = self.B / (4 * self.tf)
-
-        if flange == "C":
-            Mn = self.Mpy  # N-mm
-        if flange == "NC":
-            Mn = self.Mpy - (
-                self.Mpy - 0.7 * self.Fy * Sy * np.abs((λ - λpf) / (λrf - λpf))
-            )  # N-mm
-        if flange == "S":
-            Fcr = 0.69 * self.Es / (self.B / 2 / self.tf) ** 2  # N/mm2
-            Mn = Fcr * self.Fy  # N-mm
-        øMn = 0.9 * Mn * 1e-6  # kN-m
-        print(f"flange lateral bulking : minor axis, øMcr : {øMn:.2f} kN-m")
-        return øMn
-
-    # --------------------------------
-    # TODO
-    """
-    # H : web=C,NC, flang=C,NC,S --> Yc, Yt, LTB, FLB, TFY
-    # 5.4.1 Yc for NC-web : for major axis
-    def flange_compression_yeild(self):
-        Zx = self.Zx*1e3 # mm3
-        Iy = self.Iy*1e4 # mm4
-        R = wt.WT_flexural(self.Fy, self.Es)
-        λpf, λrf, λpw, λrw = R.h_section(self.B, self.H, self.tf, self.tw)
-        λ = hc/self.tw
-
-        Cb = Cb
-        self.Mp = self.Fy*Zx if self.Fy*Zx < 1.6*self.Fy*Sxc else 1.6*self.Fy*Sxc # N-mm
-        self.Myc = self.Fy*Sxc # N-mm
-
-        if Iyc/Iy > 0.23:
-            Rpc = self.Mp/self.Myc if hc/self.tw <= λpw else self.Mp/self.Myc - ((self.Mp/self.Myc -1)*np.abs((λ-λpw)/(λrw - λpw))) # N-mm
-            self.Rpc = np.min(Rpc, self.Mp/self.Myc)
-        else:
-            self.Rpc = 1
-
-        Mn = self.Rpc*self.Fy*Sxc*1e-3 # kN-m
-        print(f"flange yeid, øMn : {0.9*Mn} kN-m")
-
-    # 5.4.2 LTB for NC-web
-    def ltb_nc(self, Lb, Cb): # m, _unit in table
-        Lb = Lb*1e3 # mm
-        ry = ry*10 # mm
-        Iy = Iy*1e4 # mm4
-        Sx = Sx*1e3 # mm3
-
-        bfc = self.B
-        tfc = self.tf
-        h0 = self.H - self.tf # mm
-        h = self.H - self.tf
-        d = self.H
-        aw = hc*self.tw/(bfc*tfc)
-        rt = bfc/np.sqrt(12*((h0/d)+(aw/6)*(h*h/(h0*d))))
-
-        Lp = 1.1*rt*np.sqrt(self.Es/self.Fy) # mm
-
-        FL = 0.70*self.Fy if Sxt/Sxc >= 0.7 else self.Fy*Sxt/Sxc
-        FL = np.max([FL, 0.5*Fy])
-
-        J = 0 if Iyc/Iy <= 0.23 else self.J
-        K = J/(Sxc*h0)        
-        Lr = 1.95*rt*(self.Es/FL)*np.sqrt(K + np.sqrt((K**2) + 6.76*(FL/self.Es)**2)) # mm
+        Lp, Lr, FL, K1, K2 = calc_var(section, self.Fy, self.Es, Lb, Sxc, Iyc, Myc)
 
         if Lb < Lp:
-            Mn = self.Mp
+            print("No lateral-torsional bulking effect")  # N-mm
+            return
         elif Lb > Lp and Lb < Lr:
-            Mn = Cb*(self.Rpc*self.Myc-(self.Rpc*self.Myc - FL*Sxc)*(Lb-Lp)/(Lr-Lp))
-        else: # Lb > Lr
-            R = (Lb/rt)**2
-            Fcr = (Cb*self.Es*np.pi**2)*(np.sqrt(1 + 0.078*K*R))/R # MPa
-            Mn = Fcr*Sx 
-        øMn = 0.9*Mn*1e-6 if Mn < self.Rpc*self.Myc else 0.9*self.Rpc*self.Myc*1e-6      
-        print(f"lateral-torsional bulking for NC-web, øMcr : {øMn:.2f} kN-m")
-        return øMn # kN-m 
-    """
-
-    # TODO
-    # FLB for NC-web
-    # TODO
-    # Yt for NC-web
-
-    # --------------------------------
-    def call(self, Mu, label, Lb, c=1, Cb=1, flange="C"):
-        """
-        5.2.label = 1 : major axis, H,C : web=C, flang=C --> Y, LTB
-        5.3.label = 2 : major axis, H : web=C, flang=NC,S --> Y, LTB
-        5.6.label = 3 : minor axis, H, C : web=C, flang=NC,S --> Y, LTB
-        5.4.lebel = 4 : NC-web, H : web=C,NC, flang=C,NC,S --> Yc, Yt, LTB, FLB, TFY
-        """
-        # major axis
-        # H,C : web=C, flang=C --> Y, LTB
-        if label == 1:
-            self.yeild()
-            øMn = self.ltb(Lb, c, Cb)  # default Cb=1
-
-        if label == 2:
-            # major axis
-            # H : web=C, flang=NC,S --> Y, LTB
-            self.yeild()
-            øMn1 = self.ltb(Lb, c, Cb)  # default Cb=1
-            øMn2 = self.flb(flange=flange)
-            øMn = min(øMn1, øMn2)
-
-        # minor axis
-        # H, C : web=C, flang=NC,S --> Y, LTB
-        if label == 3:
-            self.yeild_minor()
-            øMn = self.flb_minor(flange=flange)
-
-        # NC-web
-        # H : web=C,NC, flang=C,NC,S --> Yc, Yt, LTB, FLB, TFY
-        if label == 4:
-            self.flange_compression_yeild()
-            øMn = self.ltb_nc(Lb, Cb)
-
-        print(f"øMn = {øMn:.2f} kN, Mu = {Mu:.2f} kN")
-
-        if øMn > Mu:
-            print(f"øMn > Mu: SECTION OK")
-            print()
-        else:
-            print("INCORRECT SECTION")
-            print()
-        return øMn
-
-
-# ==============================
-## TUBE
-# ==============================
-"""[] : web=C,NC, flange=C,NC,S --> Y,FLB,WLB"""
-
-
-class Tube:
-    def __init__(self, Fy, Es):
-        self.Fy = Fy  # MPa
-        self.Es = Es  # MPa
-
-    # h,b,t,Wt,A,Ix,Iy,Zx,Zy,rx,ry
-    def tube_definition(self, section):
-        self.H = section["h"]
-        self.B = section["b"]
-        self.tw = section["t"]
-        self.tf = section["t"]
-        self.A = section["A"]
-        self.Ix = section["Ix"]
-        self.Iy = section["Iy"]
-        self.rx = section["rx"]
-        self.ry = section["ry"]
-        self.Zx = section["Zx"]
-        self.Zy = section["Zy"]
-
-    """
-    section = symmetry
-    Mx or My
-    web = C, NC
-    flange = C, NC, S"""
-
-    def yeild(self):
-        self.Mp = self.Fy * self.Zx * 1e-3  # kN-m
-        print(f"plastic moment, øMp : {0.9*self.Mp:.2f} kN-m")
-
-    # flange local buckling
-    def FLB(self, flange):
-        if flange == "NC":
-            FE = np.sqrt(self.Fy / self.E)
             øMn = (
-                self.Mp * 1e6
-                - (self.Mp * 1e6 - self.Fy * self.Zx * 1e3)
-                * (3.57 * (self.B / self.tf) * FE - 4)
-            ) * 1e-6
-            return øMn
+                0.9 * Cb * (Rpc * Myc - (Rpc * Myc - FL * Sxc) * (Lb - Lp) / (Lr - Lp))
+            ) * 1e-6  # kN-m
 
-        elif flange == "S":
-            be = 1.92 * self.tf * FE * (1 - (0.38 / (self.B / self.tf)) * FE)  # mm
-            Se, Sy = hollow_rect(be, self.H, self.tf, self.tw)  # cm3
-            øMn = 0.9 * self.Fy * Se * 1e-3  # kN-m
-            return øMn
+        else:  # Lb > Lr
 
-        else:
-            return 0.9 * self.Mp
+            Fcr = (Cb * self.Es * np.pi**2) * (np.sqrt(1 + 0.078 * K1 * K2)) / K2  # MPa
+            øMn = 0.9 * Fcr * Sxc * 1e-6  # kN-m
 
-    # web local buckling
-    def WLB(self, web):
-        if web == "NC":
-            FE = np.sqrt(self.Fy / self.E)
-            øMn = (
-                self.Mp * 1e6
-                - (self.Mp * 1e6 - self.Fy * self.Zx * 1e3)
-                * (0.305 * (self.H / self.tw) * FE - 4)
-            ) * 1e-6
-            return øMn
-        else:
-            return 0.9 * self.Mp
+        print(f"Lateral-torsional bulking control, øMcr : {øMn:.2f} kN-m")
+        return øMn  # kN-m
 
-    def call(self, flange, web, Mu):
-        self.yeild()
-        øMn1 = self.FLB(flange)
-        øMn2 = self.WLB(web)
-        øMn = min(0.9 * self.Mp, øMn1, øMn2)
-
-        if øMn > Mu:
-            print(f"øMn = {øMn:.2f} kN > Mu {Mu:.2f} kN : SECTION OK")
-            print()
-        else:
-            print("INCORRECT SECTION")
-            print()
-
-        return øMn
-
-
-# ==============================
-## PIPE
-# ==============================
-"""ø  --> Y, LB"""
-
-
-class Pipe:
-    def __init__(self, Fy, Es, øb):
-        self.Fy = Fy  # MPa
-        self.Es = Es  # MPa
-        self.øb = øb
-
-    # ['D','T','W','A','I','Zx','i']
-    def pipe_definition(self, section):
-        self.D = section["D"]
-        self.t = section["T"]
-        self.W = section["W"]
-        self.A = section["A"]
-        self.Ix = section["I"]
-        self.Iy = section["I"]
-        self.rx = section["i"]
-        self.ry = section["i"]
-        self.Zx = section["Zx"]
-        self.Zy = section["Zx"]
-
-    # YT
-    def yeild(self):
-        self.Mp = self.Fy * self.Zx * 1e-3  # kN-m
-        print(f"plastic moment, øMp : {0.9*self.Mp:.2f} kN-m")
-
-    # local buckling
-    def LB(self, flange):
-        if flange == "NC":
-            øMn = (
-                self.øb
-                * self.Zx
-                * (self.Fy + 0.021 * self.Es / (self.D / self.t))
-                * 1e-6
-            )  # kN-m
-            return øMn
-        elif flange == "S":
-            Fcr = 0.33 * self.Es / (self.D / self.t)
-            øMn = self.øb * Fcr * self.Zx * 1e-3  # kN-m
-            return øMn
-        else:
-            return self.øb * self.Mp
-
-    def call(self, flange, Mu):
-        self.yeild()
-        øMn1 = self.LB(flange)
-
-        øMn = min(self.øb * self.Mp, øMn1)
-        print(f"øMn = {øMn:.2f}")
-
-        if øMn > Mu:
-            print(f"øMn > Mu: SECTION OK")
-            print()
-        else:
-            print("INCORRECT SECTION")
-            print()
-
-        return øMn
+    # 5.5.2 H : Majoraxis : Slender web

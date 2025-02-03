@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))) 
 from calculator.compression import Compression
 from calculator.flexural import Flexural
 from calculator.interaction import Interaction
-from tools import wt_ratio as wt
+from tools import width_thickness_ratio as wt
 
 from absl import app, flags
 from absl.flags import FLAGS
