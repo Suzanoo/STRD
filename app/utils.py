@@ -81,29 +81,30 @@ def display_df(df, index=False):
     )
 
 
-def select_label():
+def select_label(options, list):
     # Display cases
-    print(
-        f"""
-        label = 1 : major axis, H,C : web=C, flang=C --> Y, LTB
-        label = 2 : major axis, H : web=C, flang=NC,S --> Y, LTB, FLB
-        lebel = 3 : major axis, H : web=NC, --> Yc, Yt, LTB, FLB, TFY
-        """
-    )
+    # print(
+    #     f"""
+    #     label = 1 : major axis, H,C : web=C, flang=C --> Y, LTB
+    #     label = 2 : major axis, H : web=C, flang=NC,S --> Y, LTB, FLB
+    #     lebel = 3 : major axis, H : web=NC, --> Yc, Yt, LTB, FLB, TFY
+    #     """
+    # )
+    print(options)
     while True:
         label = get_valid_integer("label = ? : ")
-        if label in [1, 2, 3]:
+        if label in list:
             break
         else:
-            print("Label not in [1,2,3] Try again!")
+            print(f"Label not in {list} Try again!")
     return label
 
 
-def select_flange():
+def select_flange(list):
     while True:
         flange = input("flange = ? : [C, NC, S] : ").upper()
-        if flange in ["C", "NC", "S"]:
+        if flange in list:
             break
         else:
-            print("Flange not in [C, NC, S] Try again!")
+            print(f"Flange not in {list} Try again!")
     return flange

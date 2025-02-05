@@ -10,7 +10,7 @@ from tools import width_thickness_ratio as wt
 from utils import df_generator, display_df, get_valid_integer, select_label
 from calculator.flexural import Yeild, FLB, LTB
 
-from section_properties import H, Box
+from tools.section_properties import H, Box
 
 Pu = 150
 Mux = 25

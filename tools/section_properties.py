@@ -77,6 +77,19 @@ class H:
         return Rpc, Sxt * 1e-3, Iyt * 1e-8, Myt * 1e-6  # -, cm3, cm4, kN-m
 
 
+class CHN:
+    def __init__(self, materials):
+        self.Fy = materials.Fy
+        self.Es = materials.Es
+        # h,b,t,Wt,A,Ix,Iy,Zx,Zy,rx,ry
+
+    def torsion_chn(b, h, tf, tw):
+        J = (1 / 3) * (2 * b * (tf**3) + h * tw**3)  # mm4
+        q = (3 * b * tf + 2 * h * tw) / (6 * b * tf + h * tw)
+        Cw = q * tf * (b**3) * (h**2) / 12
+        return J, Cw
+
+
 class Box:
     def __init__(self, materials):
         self.Fy = materials.Fy
