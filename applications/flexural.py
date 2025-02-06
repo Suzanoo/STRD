@@ -1,6 +1,5 @@
 import numpy as np
 
-
 """
 Failure moode:
 Y : yeild
@@ -26,6 +25,15 @@ H : web=S, flange=C,NC,S --> Y, LTB, FLB, TFY
 T, double-L : flange=C,NC,S -->Y, LTB ,FLB
 L --> Y,LTB,LLB
 O --> Y,LB
+
+label = 1 : major axis, H,C : web=C, flang=C --> Y, LTB
+label = 2 : major axis, H : web=C, flang=NC,S --> Y, LTB, FLB
+lebel = 3 : major axis, H : web=NC, --> Yc, Yt, LTB, FLB, TFY
+lebel = 4 : minor axis, H, C : web=C, flang=NC,S --> Y, LTB
+
+H : HxB,Wt,H,B,tw,tf,r,A,Ix,Iy,rx,ry,Sx,Sy,Zx,Zy
+Channel : HxB,H,B,tf,tw,r1,r2,A,Wt,Cx,Cy,Ix,Iy,rx,ry,Zx,Zy
+
 """
 
 
@@ -125,9 +133,8 @@ class FLB:
         return øMn
 
     # H,C : Minor axis, web=C, flange=NC,S --> Y, FLB
-    def hc_minor(self, section, b, Mpy, λpf, λrf, flange="C"):
+    def hc_minor(self, section, Sy, b, Mpy, λpf, λrf, flange="C"):
         Mpy = Mpy * 1e6  # N-mm
-        Sy = section.Sy * 1e3  # mm3
 
         λ = b / (2 * section.tf)
 
@@ -143,8 +150,8 @@ class FLB:
             øMn = 0.9 * (Fcr * self.Fy) * 1e-6  # kN-m
 
         else:
-            print("No Flange lateral bulking effect")
-            return
+            print("No Flange lateral bulking effect, use øMpy")
+            return 0.9 * Mpy * 1e-6
 
         print(f"flange lateral bulking control, øMcr : {øMn:.2f} kN-m")
         return øMn
@@ -187,18 +194,26 @@ class LTB:
     # 5.2.2
     # H,C : x-x axis, web=C, flang=C --> Y, LTB
     # H : x-x axis, web=C, flang=NC,S --> Y, LTB, FLB
-    def hc_major(self, section, Mp, Lb, Cb, J, Cw, channel=False):  # m, _unit in table
+    def hc_major(
+        self, materials, section, Mp, Lb, Cb, J, Cw, channel=False
+    ):  # m, _unit in table
         Lb = Lb * 1e3  # mm
         ry = section.ry * 10  # mm
         Iy = section.Iy * 1e4  # mm4
-        Sx = section.Sx * 1e3  # mm3
-
         h0 = section.H - section.tf  # mm
-        rts = np.sqrt((np.sqrt(Iy * Cw)) / Sx)  # mm
         c = 1
 
-        if channel == True:
+        if channel == False:
+            Sx = section.Sx * 1e3  # mm3
+        else:
+            from tools.section_properties import CHN
+
+            chn = CHN(materials)
+            Sx, Sy = chn.section_modulus(section)
+            Sx = Sx * 1e3  # mm3
             c = (h0 / 2) * np.sqrt(Iy / Cw)
+
+        rts = np.sqrt((np.sqrt(Iy * Cw)) / Sx)  # mm
 
         K1 = J * c / (Sx * h0)
         K2 = (Lb / rts) ** 2

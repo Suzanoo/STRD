@@ -11,13 +11,13 @@ from section_generator import MaterialProperties, Loads
 from tools import width_thickness_ratio as wt
 from applications import compression
 
-from utils import select_label, try_section
+from utils import select_label, initialize_section, try_section
 
 
 # Width-Thickness ratio checked
 def wt_ratio_check(materials, section):
 
-    C = wt.WT_compression(materials.Fy, materials.Es)
+    C = wt.WT_compression(materials)
 
     C.h_section(section["B"], section["H"], section["tf"], section["tw"])
 
@@ -43,10 +43,16 @@ def call(Pu, Mux, Muy, K, Lb):
     loads = Loads(Pu, Mux, Muy)
     materials = MaterialProperties(Fy=250, Es=200000)
 
-    section = try_section(loads, materials, "H-Sections.csv")
-    label = wt_ratio_check(materials, section)
+    df = initialize_section(loads, materials, "H-Sections.csv")
 
-    return axial_capacity(materials, section, K, Lb, Pu, label, limit=200)
+    while True:
+        section = try_section(df)
+        label = wt_ratio_check(materials, section)
+        axial_capacity(materials, section, K, Lb, Pu, label, limit=200)
+
+        confirm = input("Try Again? Y|N: ").upper()
+        if confirm != "Y":
+            break
 
 
 if __name__ == "__main__":
@@ -55,7 +61,7 @@ if __name__ == "__main__":
     Muy = 15
 
     K = 1
-    Lb = 10
+    Lb = 15
 
     øPn = call(Pu, Mux, Muy, K, Lb)
 

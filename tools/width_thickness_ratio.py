@@ -138,7 +138,7 @@ class WT_flexural:
         return λpf, λrf, λpw, λrw
 
     def tube(self, b, h, tw, tf):
-        # h,b,t,Wt,A,Ix,Iy,Zx,Zy,ix,iy
+        # h,b,t,Wt,A,Ix,Iy,Zx,Zy,rx,ry
         λp = 1.12 * np.sqrt(self.Es / self.Fy)
         λr = 1.40 * np.sqrt(self.Es / self.Fy)
 

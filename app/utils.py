@@ -92,17 +92,17 @@ def select_label(options, list):
     return label
 
 
-def select_flange(list):
+def select_flange():
     while True:
         flange = input("flange = ? : [C, NC, S] : ").upper()
-        if flange in list:
+        if flange in ["C", "NC", "S"]:
             break
         else:
-            print(f"Flange not in {list} Try again!")
+            print(f"Please select from [C, NC, S] Try again!")
     return flange
 
 
-def try_section(loads, materials, section):
+def initialize_section(loads, materials, section):
     df = df_generator(section)
 
     # Calculated required Z values
@@ -113,7 +113,10 @@ def try_section(loads, materials, section):
 
     df_filter = df[(df["Zx"] > Zx) & (df["Zy"] > Zy)]
     display_df(df_filter.sort_values(by=["Zx"])[:20], index=True)
+    return df
 
+
+def try_section(df):
     # Try section
     i = get_valid_integer("PLEASE SELECT SECTION : ")
     section = df.iloc[i - 1]
@@ -139,3 +142,21 @@ def try_pipe(loads, materials, section):
     section = df.iloc[i - 1]
     display_df(df.filter(items=[i], axis=0), index=True)
     return section
+
+
+def result(context, unit):
+    if len(context) != 2:
+        raise ValueError("context must have exactly two key-value pairs.")
+
+    keys = list(context.keys())
+    values = list(context.values())
+
+    a, b = keys
+    A, B = values
+
+    print(f"{a} = {A:.2f} {unit}, {b} = {B:.2f} {unit}")
+
+    if A > B:
+        print(f"{a} > {b}: SECTION OK\n")
+    else:
+        print("INCORRECT SECTION\n")

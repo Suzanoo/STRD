@@ -78,16 +78,32 @@ class H:
 
 
 class CHN:
+    # HxB,H,B,tf,tw,r1,r2,A,Wt,Cx,Cy,Ix,Iy,rx,ry,Zx,Zy
     def __init__(self, materials):
         self.Fy = materials.Fy
         self.Es = materials.Es
-        # h,b,t,Wt,A,Ix,Iy,Zx,Zy,rx,ry
 
-    def torsion_chn(b, h, tf, tw):
+    def torsion_chn(self, section):
+        b = section.B
+        h = section.H
+        tf = section.tf
+        tw = section.tw
         J = (1 / 3) * (2 * b * (tf**3) + h * tw**3)  # mm4
         q = (3 * b * tf + 2 * h * tw) / (6 * b * tf + h * tw)
         Cw = q * tf * (b**3) * (h**2) / 12
         return J, Cw
+
+    def section_modulus(self, section):
+        b = section.B
+        h = section.H
+        tw = section.tw
+        tf = section.tf
+
+        Ix = ((b * h**3) - (b - tw) * (h - 2 * tf) ** 3) / 12
+        Iy = ((2 * tf * b**3) + tw * h**3) / 12
+        Sx = Ix / (h / 2) * 1e-3  # cm3
+        Sy = Iy / (b / 2) * 1e-3  # cm3
+        return Sx, Sy
 
 
 class Box:

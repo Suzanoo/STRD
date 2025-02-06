@@ -4,7 +4,7 @@ from tools.section_modulus import hollow_rect
 """[] : web=C,NC, flange=C,NC,S --> Y,FLB,WLB"""
 
 
-# 5.7.2 Tube
+# 5.7 Tube
 class Tube:
     def __init__(self, materials):
         self.Fy = materials.Fy  # MPa
@@ -48,7 +48,7 @@ class Tube:
             return øMn
 
         else:
-            print("No flange lateral bulking effect")
+            print("No flange lateral bulking effect, use øMp")
             return 0.9 * Mp
 
     # web local buckling
@@ -64,7 +64,7 @@ class Tube:
             print(f"NC-Web : Web lateral bulking, øMcr = {øMn:.2f} kN-m")
             return øMn
         else:
-            print("No web lateral bulking effect")
+            print("No web lateral bulking effect, use øMp")
             return 0.9 * Mp
 
     def call(self, section, flange, web, Mu):
@@ -76,9 +76,5 @@ class Tube:
 
         if øMn > Mu:
             print(f"øMn = {øMn:.2f} kN > Mu {Mu:.2f} kN : SECTION OK")
-            print()
         else:
-            print("INCORRECT SECTION")
-            print()
-
-        return øMn
+            print(f"øMn = {øMn:.2f} kN < Mu {Mu:.2f} kN : INCORRECT SECTION")

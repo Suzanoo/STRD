@@ -7,7 +7,7 @@ sys.path.append(
 
 from section_generator import MaterialProperties, Loads
 
-from utils import select_label, select_flange, try_section
+from utils import select_label, select_flange, initialize_section, try_section, result
 from applications.flexural import Yeild, FLB, LTB
 
 from tools import width_thickness_ratio as wt
@@ -30,7 +30,7 @@ def flexural_capacity(loads, materials, section, Lb, Cb, λpf, λrf, λpw, λrw)
     ltb = LTB(materials)
 
     # Major Axis
-    print("Major axis")
+    print("[INFO] : Major axis")
     options = f"""
         label = 1 : major axis, H,C : web=C, flang=C --> Y, LTB
         label = 2 : major axis, H : web=C, flang=NC,S --> Y, LTB, FLB
@@ -46,8 +46,8 @@ def flexural_capacity(loads, materials, section, Lb, Cb, λpf, λrf, λpw, λrw)
         J, Cw = h.torsion(section)
 
         øMp = yeild.major_axis(section.Zx)
-        øMn = ltb.hc_major(section, øMp / 0.9, Lb, Cb, J, Cw)
-        return øMn
+        øMn = ltb.hc_major(materials, section, øMp / 0.9, Lb, Cb, J, Cw)
+        øMnx = øMn
 
     # label = 2 : major axis, H : web=C, flang=NC,S --> Y, LTB, FLB
     elif label == 2:
@@ -55,9 +55,9 @@ def flexural_capacity(loads, materials, section, Lb, Cb, λpf, λrf, λpw, λrw)
         J, Cw = h.torsion(section)
 
         øMp = yeild.major_axis(section.Zx)
-        øMn1 = ltb.hc_major(section, øMp / 0.9, Lb, Cb, J, Cw)
+        øMn1 = ltb.hc_major(materials, section, øMp / 0.9, Lb, Cb, J, Cw)
         øMn2 = flb.hc_major(section, øMp / 0.9, λpf, λrf, flange)
-        return min(øMn1, øMn2)
+        øMnx = min(øMn1, øMn2)
 
     # lebel = 3 : major axis, H : web=NC, --> Yc, Yt, LTB, FLB, TFY
     elif label == 3:
@@ -71,23 +71,35 @@ def flexural_capacity(loads, materials, section, Lb, Cb, λpf, λrf, λpw, λrw)
         øMn2 = yeild.nc_web_yt(sxt, rpt)
         øMn3 = ltb.nc_web(section, Lb, sxc, Iyc, Myc, rpc)
         øMn4 = flb.nc_web(section, λpf, λrf, sxc, Myc, rpc, flange)
-        return min(øMn1, øMn2, øMn3, øMn4)
+        øMnx = min(øMn1, øMn2, øMn3, øMn4)
+
+    context = {"øMnx": øMnx, "Mux": loads.Mux}
+    result(context, "kN-m")
 
     if loads.Muy != 0:
-        print(f"\nMinor axis :")
+        print(f"\n[INFO] : Minor axis :")
         øMpy = yeild.minor_axis(section.Sy, section.Zy)
-        øMn = flb.hc_minor(section, section.B / 2, øMpy / 0.9, λpf, λrf, flange)
-        return øMn
+        øMny = flb.hc_minor(
+            section, section.Sy * 1e3, section.B / 2, øMpy / 0.9, λpf, λrf, flange
+        )
+        context = {"øMny": øMny, "Muy": loads.Muy}
+        result(context, "kN-m")
 
 
 def call(Pu, Mux, Muy, Lb, Cb):
     loads = Loads(Pu, Mux, Muy)
     materials = MaterialProperties(Fy=250, Es=200000)
 
-    section = try_section(loads, materials, "H-Sections.csv")
-    λpf, λrf, λpw, λrw = wt_ratio_check(materials, section)
+    df = initialize_section(loads, materials, "H-Sections.csv")
 
-    return flexural_capacity(loads, materials, section, Lb, Cb, λpf, λrf, λpw, λrw)
+    while True:
+        section = try_section(df)
+        λpf, λrf, λpw, λrw = wt_ratio_check(materials, section)
+
+        flexural_capacity(loads, materials, section, Lb, Cb, λpf, λrf, λpw, λrw)
+        confirm = input("Try Again? Y|N: ").upper()
+        if confirm != "Y":
+            break
 
 
 if __name__ == "__main__":
@@ -97,6 +109,6 @@ if __name__ == "__main__":
     Lb = 10
     Cb = 1
 
-    øMn = call(Pu, Mux, Muy, Lb, Cb)
+    call(Pu, Mux, Muy, Lb, Cb)
 
 # python app/h_beam.py

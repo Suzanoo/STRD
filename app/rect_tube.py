@@ -8,19 +8,15 @@ sys.path.append(
 
 from section_generator import MaterialProperties, Loads
 
-from utils import (
-    select_label,
-    select_flange,
-    try_pipe,
-)
+from utils import select_label, try_section, initialize_section
 
-from applications import compression, pipe_section
+from applications import compression, tube_section
 from tools import width_thickness_ratio as wt
 
 
 def compression_wt_ratio_check(materials, section):
     C = wt.WT_compression(materials)
-    C.pipe(section.D, section.t)
+    C.tube(section["b"], section["t"])
 
     sleep(2)
 
@@ -36,26 +32,23 @@ def compression_wt_ratio_check(materials, section):
 def flexural_wt_ratio_check(materials, section):
     # Width-Thickness Ratio Checked
     R = wt.WT_flexural(materials)
-    R.pipe(section.D, section.t)
+    R.tube(section.b, section.h, section.t, section.t)
 
 
 def flexural_capacity(materials, section, Mu):
-    print(
-        """
-    ø  --> Y, LB
-    """
-    )
+    print("[] : web=C,NC, flange=C,NC,S --> Y, FLB, WLB")
 
-    flange = select_flange()
+    flange = input("flange = ? : [C, NC, S] : ").upper()
+    web = input("web = ? : [C, NC, S] : ").upper()
 
-    calc = pipe_section.Pipe(materials)
-    øMn = calc.call(section, flange, Mu)
+    calc = tube_section.Tube(materials)
+    øMn = calc.call(section, flange, web, Mu)
     return øMn
 
 
 def compression_capacity(materials, section, K, Lb, Pu, label, limit):
     calc = compression.Compression(materials)
-    øPn = calc.call(label, K, Lb, section.i, section.A, Pu, limit)
+    øPn = calc.call(label, K, Lb, section.rx, section.A, Pu, limit)
     return øPn
 
 
@@ -64,14 +57,16 @@ if __name__ == "__main__":
     Mux = 15
     Muy = 5
     K = 1
-    Lb = 5
+    Lb = 6
     Cb = 1
 
     loads = Loads(Pu, Mux, Muy)
     materials = MaterialProperties(Fy=250, Es=200000)
 
+    df = initialize_section(loads, materials, "Rectangular_Tube.csv")
+
     while True:
-        section = try_pipe(loads, materials, "Pipe.csv")
+        section = try_section(df)
 
         # Calculate compression capacity
         print("[INFO] : Compression capacity")
@@ -81,11 +76,11 @@ if __name__ == "__main__":
         # Calculate flexural capacity
         print("[INFO] : Flexural capacity")
         flexural_wt_ratio_check(materials, section)
-        øMn = flexural_capacity(materials, section, Mux)
+        flexural_capacity(materials, section, Mux)
 
         confirm = input("Try Again? Y|N: ").upper()
         if confirm != "Y":
             break
 
 
-# python app/pipe.py
+# python app/rect_tube.py

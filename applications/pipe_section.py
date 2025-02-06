@@ -4,6 +4,7 @@ DN,D,t,W,A,I,Z,i
 """
 
 
+# 5.8
 class Pipe:
     def __init__(self, materials, øb=0.9):
         self.Fy = materials.Fy  # MPa
@@ -42,10 +43,8 @@ class Pipe:
         øMn = min(øMp, øMn)
 
         if øMn > Mu:
-            print(f"øMn > Mu: SECTION OK")
-            print()
+            print(f"øMn = {øMn:.2f} kN > Mu {Mu:.2f} kN : SECTION OK")
         else:
-            print("INCORRECT SECTION")
-            print()
+            print(f"øMn = {øMn:.2f} kN < Mu {Mu:.2f} kN : INCORRECT SECTION")
 
         return øMn
