@@ -177,26 +177,6 @@ class FLB:
 
     # TODO # 5.5.3 H : Majoraxis : Slender web
 
-    # 5.7.2 Box
-    def box(self, b, tf, S, Mp, flange="NC"):
-        if flange == "NC":
-            øMn = (
-                0.9
-                * (
-                    Mp
-                    - (Mp - 0.7 * self.Fy * S)
-                    * (3.57 * (b / tf) * np.sqrt(self.Fy / self.Es) - 4)
-                )
-                * 1e-6
-            )
-        elif flange == "S":
-            øMn = 0.9 * self.Fy * S * 1e-6
-        else:
-            print("No Flange lateral bulking effect")
-            return
-        print(f"Flange lateral bulking control :  øMcr : {øMn:.2f} kN-m")
-        return øMn
-
 
 # lateral-torsional bulking
 class LTB:

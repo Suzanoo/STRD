@@ -6,6 +6,16 @@ class Compression:
     FB = flexural control
     TB : torsion control
     FTB : flexural-torsional control
+
+    C = compact
+    NC = non-compact
+    S = slender
+
+    label = 1 : C, NC --> 'H', '[]', 'O', 'composit H'
+    label = 2 : C, NC --> 'CHN', 'T'
+    label = 3 : C, NC -->  'L'
+    label = 4 : S --> 'H', 'CHN', '[]', 'O',
+    label = 5 : S --> 'L', 'T'
     """
 
     def __init__(self, materials, øc=0.65):
@@ -53,17 +63,7 @@ class Compression:
         pass
 
     def call(self, label, K, Lb, r, A, Pu, limit):
-        """
-        C = compact
-        NC = non-compact
-        S = slender
-        label = 1 : C, NC --> 'H', '[]', 'O', 'composit H'
-        label = 2 : C, NC --> 'CHN', 'T'
-        label = 3 : C, NC -->  'L'
-        label = 4 : S --> 'H', 'CHN', '[]', 'O',
-        label = 5 : S --> 'L', 'T'
-        """
-
+        """ """
         # 'H', '[]', 'O', 'composit H'
         if label == 1:
             d = self.eff_length(K, Lb, r, limit)

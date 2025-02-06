@@ -3,9 +3,9 @@ import numpy as np
 
 # width_thickness ratio given by compression
 class WT_compression:
-    def __init__(self, Fy, Es):
-        self.Fy = Fy
-        self.Es = Es
+    def __init__(self, materials):
+        self.Fy = materials.Fy
+        self.Es = materials.Es
         print(f"Width-Thickness ratio given by compression : ")
 
     def h_section(self, B, H, tf, tw):  # mm

@@ -11,32 +11,7 @@ from section_generator import MaterialProperties, Loads
 from tools import width_thickness_ratio as wt
 from applications import compression
 
-from utils import (
-    df_generator,
-    display_df,
-    get_valid_integer,
-    select_label,
-    select_flange,
-)
-
-
-def try_section(loads, materials):
-    df = df_generator("H-Sections.csv")
-
-    # Calculated required Z values
-    Zx = loads.Mux * 1000 / (0.9 * materials.Fy)
-    Zy = loads.Muy * 1000 / (0.75 * materials.Fy)
-    print(f"\nInitial Z required = {Zx:.2f} cm3")
-    print(f"Initial A required = {(loads.Pu /  materials.Fy) * 10:.2f} cm2")
-
-    df_filter = df[(df["Zx"] > Zx) & (df["Zy"] > Zy)]
-    display_df(df_filter.sort_values(by=["Zx"])[:20], index=True)
-
-    # Try section
-    i = get_valid_integer("PLEASE SELECT SECTION : ")
-    section = df.iloc[i]
-    display_df(df.filter(items=[i], axis=0), index=True)
-    return section
+from utils import select_label, try_section
 
 
 # Width-Thickness ratio checked
@@ -68,7 +43,7 @@ def call(Pu, Mux, Muy, K, Lb):
     loads = Loads(Pu, Mux, Muy)
     materials = MaterialProperties(Fy=250, Es=200000)
 
-    section = try_section(loads, materials)
+    section = try_section(loads, materials, "H-Sections.csv")
     label = wt_ratio_check(materials, section)
 
     return axial_capacity(materials, section, K, Lb, Pu, label, limit=200)
