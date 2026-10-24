@@ -1,0 +1,793 @@
+ACCEPTANCE RECORD: PO accepted MS-0 and authorized MS-1 on 2026-10-24.
+The following is the original investigation evidence. Its original pending status records delivery-time history; MS-1 authorization supersedes that status and selects current scope. Proposed MS-2+ remain unapproved.
+
+STRD — MS-0 REPOSITORY ASSESSMENT AND RECOVERY PLAN
+วันที่: 24 ตุลาคม 2026 (Asia/Bangkok)
+Role: Work — Engineer / Architect / Investigator
+Status: MS-0 INVESTIGATION COMPLETE — PENDING PRODUCT OWNER ACCEPTANCE
+Implementation status: NOT STARTED
+
+สรุปสำหรับ Product Owner
+------------------------
+STRD มีฐานงานที่นำมาใช้ต่อได้ แต่ปัจจุบันเป็นชุดสคริปต์ทดลองหลายแนวทางมากกว่าโปรแกรมออกแบบที่มีขอบเขตและหลักฐานยืนยันร่วมกัน ปัญหาไม่ได้อยู่ที่การจัดโฟลเดอร์อย่างเดียว: พบข้อมูลหน้าตัดเสีย เงื่อนไขคำนวณต่างจากหนังสือ เส้นทางคำนวณที่หยุดทำงาน และการแสดง SECTION OK โดยไม่มีการตรวจความครบถ้วนของข้อมูล/สภาวะขีดจำกัด
+
+ข้อเสนอ: เก็บของเดิมเป็นหลักฐาน แล้วรับรองความสามารถทีละส่วนด้วยข้อมูลและกรณีทดสอบที่ตรวจอิสระ หลีกเลี่ยงทั้งการยกของเดิมทั้งหมดขึ้นหน้าจอใหม่ และการเขียนใหม่ทั้งระบบโดยไม่ใช้ของเดิม
+
+แนะนำเริ่มงานตรวจคาน H รีดร้อนสมมาตรสองแกน หน้าตัดอัดแน่น รับดัดแกนหลักและแรงเฉือนในขอบเขตจำกัด จากแรงที่วิศวกรป้อนมาแล้ว รองรับ ASD/LRFD โดยแยกฐานแรงให้ชัด งานนี้ยังเป็นข้อเสนอ ไม่ใช่ Product Decision ที่ยอมรับแล้ว
+
+รายงานนี้ไม่มีการแก้ production source ไม่มี commit/push/merge/tag/release/deploy และไม่มีการเริ่ม MS-1
+
+1. AUTHORITY, BASELINE AND SCOPE
+===============================
+
+1.1 Accepted Product Requirements / Decisions
+A1. ใช้ STRD เดิมเป็นฐาน คัดส่วนที่ตรวจผ่านมาเป็นแกนโปรแกรม
+A2. ผู้ใช้อนุญาต MS-0: สำรวจความสามารถเทียบหนังสือ แยกงานที่ใช้ต่อ/ต้องแก้/ต้องพิสูจน์/นอกขอบเขต เสนอหลักร่วมและ milestone พร้อมเกณฑ์ยอมรับ
+A3. ใช้ collaboration contract ของ Progress Studio กำกับงานเสมอ
+A4. Desktop/Web ยังไม่ตัดสิน และยังไม่มี implementation authorization สำหรับ milestone ถัดไป
+
+1.2 Governing collaboration sources READ IN THIS RUN
+Progress Studio baseline:
+main @ 9e6c0a7b66ab400fd4bfc51f428042c795d549a5
+
+อ่าน docs/README.md และเอกสาร authoritative:
+- docs/ENGINEER_CONTRACT.md
+- docs/ENGINEER_WORKFLOW.md
+- docs/COORDINATOR_CONTRACT.md
+
+Pinned source prefix:
+https://github.com/Suzanoo/progress-studio/blob/9e6c0a7b66ab400fd4bfc51f428042c795d549a5/
+
+ใช้กติกาบทบาท อำนาจ ขอบเขต milestone reuse-first evidence discipline handoff และ Git boundary ตามที่ PO สั่ง โดยไม่ได้ย้าย feature contracts เฉพาะ Excel/EV/Payment มาเป็นข้อกำหนดของ STRD
+PO เป็นเจ้าของ product/architecture decisions; Work ทำ investigation และเสนอทางเลือก; Coordinator อ่าน handoff และสรุป acceptance; Git writes เป็นของผู้ได้รับ authorization เฉพาะงาน
+ไม่สร้าง authority ซ้ำใน STRD ภายใน MS-0 นี้ หากอนุมัติขั้นถัดไปควรมีเอกสารอ่านเริ่มต้นที่ชี้ authority เดียวกันอย่างชัดเจน
+
+1.3 STRD baseline verified
+Repository: Suzanoo/STRD
+Branch: main
+Commit: 1e1b820f0a30e86fa0fd15ce0f707ac8e2b71468
+Commit date: 2025-02-06T08:28:57Z
+Commit message: Add loop-selected
+Pinned source prefix:
+https://github.com/Suzanoo/STRD/blob/1e1b820f0a30e86fa0fd15ce0f707ac8e2b71468/
+
+Baseline ตรงกับการตรวจครั้งก่อน จึงใช้หลักฐานเดิมและขยายเฉพาะ inventory, dependency, data และ proof probes ที่จำเป็นต่อ MS-0
+Tree ปัจจุบันไม่พบ AGENTS.md, docs index, architecture/roadmap contract, test suite หรือ CI workflow ของ STRD
+README มีคำแนะนำติดตั้ง แต่ยังไม่มี product scope/limitations/acceptance policy
+
+1.4 Book reference
+คู่มือการออกแบบอาคารเหล็กโครงสร้างรูปพรรณ กรมโยธาธิการและผังเมือง
+Uploaded filename: การออกแบบโครงสร้างเหล็ก2กรมโยธา.pdf
+186 PDF pages; ISBN 978-974-458-597-4
+SHA256: 8e7f8411228698cc3cffdb69ce50e284e4a95f535d48052cb61af0f5c47b95a9
+
+เลขหน้าในรายงานเป็นเลขหน้าพิมพ์ในเล่ม; หน้าเนื้อหา 1 ตรงกับ PDF page 21
+บทนำระบุฐาน AISC 360-10 และครอบคลุม ASD/LRFD
+ไม่ได้ตรวจสถานะกฎหมาย/มาตรฐานปัจจุบันภายนอกใน MS-0 นี้ และไม่อ้างว่าเอกสารปีดังกล่าวเป็นฉบับบังคับใช้ปัจจุบัน
+ก่อนใช้เป็นผลิตภัณฑ์สำหรับงานจริง ต้องตัดสินและตรวจสอบ design basis/edition ที่เกี่ยวข้อง รวมถึงแหล่งข้อมูลที่หนังสืออ้างต่อ
+
+2. REPOSITORY INVENTORY AND COVERAGE
+====================================
+
+ตรวจ tree ทั้งหมดเพราะ scope คือแผนฟื้นฟูทั้ง repo:
+47 files: 30 Python, 14 CSV, 1 PNG, README.md, .gitignore
+ตรวจโครงสร้างและ syntax ของ Python ทั้ง 30 ไฟล์; ตรวจโครงสร้าง CSV ทั้ง 14 ไฟล์
+อ่านรายละเอียดเส้นทางหลักและ helper ที่เกี่ยวข้อง ไม่ได้พิสูจน์ทุกสูตรของทุกสคริปต์ และไม่ได้ตรวจเนื้อหาภาพ Alignment_Chart.png ใหม่
+
+Capability map — presence is NOT verification:
+
+[Book chapters 1–2, printed pp.1–11]
+Existing: app/section_generator.py; tools/width_thickness_ratio.py; load combinations กระจายในสคริปต์หลังคา
+Status: PARTIAL / NEEDS REPAIR
+Missing: explicit design-basis edition, shared units contract, material source policy, authoritative section classification routing, consistent load-combination ownership.
+Book 2.2 อ้างกฎกระทรวง/มาตรฐานอื่น; 2.5 กล่าวถึงเสถียรภาพระบบและ second-order effects จึงไม่ใช่เรื่องที่ member capacity check ครอบคลุมอัตโนมัติ
+
+[Chapter 3 tension, pp.12–17]
+Existing: app/sag_rod.py เป็นกรณีใช้งานจำกัด
+Status: NO GENERAL VERIFIED TENSION MODULE FOUND
+ไม่พบ workflow ครบ gross yielding/net rupture/shear lag/block shear ตามชนิดรอยต่อ
+ไม่ควรนับ sag rod เป็นการรองรับบทแรงดึงทั้งหมด
+
+[Chapter 4 compression, pp.18–25]
+Existing: applications/compression.py; app/h_column.py; channel/pipe/tube callers
+Status: PARTIAL / VERIFIED DEFECTS / INCOMPLETE LIMIT STATES
+FB มีโค้ด; TB/FTB/slender มีช่องว่างหรือ TODO; การเลือกแกนและ unsupported cases ยังไม่เป็นระบบ
+
+[Chapter 5 flexure, pp.26–50]
+Existing: applications/flexural.py, tube_section.py, pipe_section.py; H/channel/tube/pipe apps; section-property helpers
+Status: PARTIAL / VERIFIED RUNTIME DEFECTS / FORMULA AUDIT REQUIRED
+มี Y, LTB, FLB และบาง NC-web branches
+ไม่พบ coverage ครบ T/double-angle/single-angle/unsymmetric/slender-web/general built-up cases ตามทุกข้อ
+ชื่อ class หรือ comment อ้างข้อไม่ได้แสดงว่าเงื่อนไขและสูตรผ่านการตรวจแล้ว
+
+[Chapter 6 shear, pp.51–58]
+Existing: shear() ในสคริปต์หลังคา
+Status: FRAGMENTED / NOT A GENERAL CHAPTER-6 IMPLEMENTATION
+ไม่พบ service กลางที่จัดการ Cv, web slenderness, stiffeners, tension-field action และ hollow sections ครบ
+H-beam app หลักยังไม่ใช่การตรวจคานแบบครบ bending+shear+serviceability
+
+[Chapter 7 combined actions/torsion, pp.59–68]
+Existing: applications/interaction.py; eff() ใน roof apps
+Status: PARTIAL / INPUT-VALIDATION DEFECT REPRODUCED
+มี compression+bending equations บางกรณี; ไม่พบการเชื่อมผลรวมอย่างสม่ำเสมอใน member apps
+ไม่พบ strength check ของ torsion ครบตามบท; helpers ที่คืน J/Cw ไม่เท่ากับ torsional design
+
+[Chapter 8 connections, pp.69–71]
+Existing: app/bolt.py เป็นสคริปต์ค่าคงที่; app/base_plate.py เป็นอีก use case
+Status: EXPERIMENTAL / SEPARATE DESIGN BASIS NEEDED
+ไม่พบ general weld/bolt connection engine หรือ verification ของตัวอย่าง 10.6 ทั้งชุด
+Book 8.2–8.3 อ้างมาตรฐาน ว.ส.ท./แหล่งอื่นเพิ่มเติม
+Base plate ไม่ควรถูกอ้างว่าได้รับรองจากบทนี้โดยอัตโนมัติ
+
+[Chapter 9 serviceability, pp.72–73]
+Existing: deflection/delta ใน roof apps; beam solver ให้ displacement
+Status: LOCAL IMPLEMENTATIONS / UNVERIFIED
+ไม่พบ serviceability policy กลางตามการใช้งาน แหล่งเกณฑ์ และ service load combinations
+ไม่มีหลักฐานว่าครอบคลุม drift/vibration/thermal effects/joint slip
+
+[Chapter 10 examples, pp.74–150]
+Existing: hard-coded example-like inputs ในบาง main blocks
+Status: NO AUTOMATED BOOK-EXAMPLE VERIFICATION SUITE FOUND
+ค่าที่ป้อนใน main block ไม่ใช่ expected-result tests และไม่ได้ยืนยัน intermediate calculations
+
+[Appendices A/B, pp.152 onward]
+Existing: 14 CSV files
+Status: REUSABLE DATA CANDIDATES / NOT CERTIFIED DATA
+มีข้อมูล H/channel/angle/tube/pipe รวมทั้ง cold-formed lip channel, Z และ reinforcing-bar data ที่ต้องแยกฐานอ้างอิง
+Double-Channel.csv กับ Double_Channel.csv เป็นเนื้อหาซ้ำกัน; เช่นเดียวกับ Double-Equal_Angles.csv และ Double_Equal_Angles.csv
+ไม่ควรย้ายทั้ง 14 ไฟล์เข้าสู่ verified catalog โดยไม่ตรวจ provenance/units/precision
+
+[Additional analysis and roof workflows]
+analysis/beam_analysis.py, analysis/plot.py:
+beam stiffness solver และ plot เป็น candidate ใช้ต่อ; ไม่มี proof ว่า solver ถูกต้องทุก boundary/load case
+solver ระบุ adapted upstream source; ต้องตรวจ provenance/license ก่อนการเผยแพร่ส่วนนี้
+app/purin.py, purin_lrfd.py, rafter.py, rafter_lrfd.py, hip.py, ridge.py:
+เป็น workflow จาก geometry+loads ต่างจาก member checker จากผลวิเคราะห์
+app/relative_stiffness.py:
+helper หา relative stiffness; ไม่เท่ากับการพิสูจน์ global stability
+ทั้งหมดควรเก็บเป็น reference/legacy จนกว่าจะมี scope และ tests ของตัวเอง
+
+3. FINDINGS WITH EVIDENCE LEVEL
+===============================
+
+Severity ใช้จัดลำดับการฟื้นฟู ไม่ใช่จำนวนบั๊กทั้งหมดหรือการรับรองความปลอดภัย
+
+F01 — CRITICAL: compression branch differs from book [EXECUTED + BOOK]
+applications/compression.py: Compression.flexural_control
+Code uses: if d > a or b <= 2.25
+Book p.22 uses elastic branch for Fy/Fe > 2.25, not <=.
+Probe Fy=245 MPa, E=200000 MPa, KL/r=79.7:
+actual Fcr = 245.0 MPa; book example 10.2.1 p.80 ≈176 MPa.
+หนังสือหน้า 22 ถูกตรวจจากภาพหน้าจริงด้วย ไม่พึ่ง text extraction ของเครื่องหมายเพียงอย่างเดียว
+Default phi_c=0.65 ต่างจาก book p.18 phi_c=0.9.
+ห้ามใช้ผลสุดท้ายที่อาจใกล้กันเพราะข้อผิดพลาดชดเชยกันเป็นหลักฐานความถูกต้อง
+ต้องตรวจ intermediate Fe/Fcr, nominal strength, design factors และ demand แยกกัน
+
+F02 — HIGH: incomplete compression route [STATIC]
+app/h_column.py: axial_capacity ส่ง section.rx อย่างเดียว; Mux/Muy ถูกใช้ตอนเลือกหน้าตัดแต่ไม่ได้ทำ combined check ใน call นี้
+applications/compression.py: label 2 ยัง TODO torsion; label 4 ใช้ FB เดิมทั้งที่ slender handling ยัง pass
+ผล SECTION OK จึงอาจหมายถึง check ย่อยเพียงรายการเดียว
+
+F03 — HIGH: ordinary LTB branch crashes [EXECUTED]
+applications/flexural.py: LTB.hc_major
+Lb < Lp พิมพ์ข้อความแต่ไม่กำหนด Mn; หลังจากนั้นเรียก min(Mn, Mp)
+Probe ตาม Appendix A: UnboundLocalError for Mn.
+Equality at Lp/Lr และ near-boundary behavior ต้องอยู่ใน future tests
+
+F04 — HIGH: nominal-moment unit contract inconsistent [STATIC]
+app/h_beam.py ส่ง øMp/0.9 เป็น kN-m เข้า LTB.hc_major
+ช่วง inelastic LTB นำ Mp ไปบวก/ลบกับ Fy*Sx ที่เป็น N-mm แล้วคูณ 1e-6
+ต้องกำหนดหน่วยภายในเดียวและตรวจเทียบ intermediate values ก่อนใช้ branch นี้
+
+F05 — HIGH: other incomplete branches crash [EXECUTED]
+applications/flexural.py: calc_var ใช้ J โดยกำหนดเฉพาะเงื่อนไข Iyc/Iy <=0.23
+Probe Iyc/Iy >0.23: UnboundLocalError for J.
+applications/tube_section.py: FLB('S') ใช้ FE ที่ถูกกำหนดใน NC branch เท่านั้น
+Probe slender flange: UnboundLocalError for FE.
+
+F06 — CRITICAL: corrupted section table can silently shift properties [EXECUTED]
+Square_Tube.csv header =12 fields; nonblank rows 3,4,5,7 =11 fields.
+pandas อ่านสำเร็จแต่ค่าเลื่อนคอลัมน์และเกิด NaN.
+Rectangular_Tube.csv rows 15=13 fields; 16,23,24=11 fields.
+pandas ParserError at line 15.
+รูปแบบถูกต้องของอีก 12 CSV ไม่ได้พิสูจน์ค่าทางวิศวกรรมถูกต้อง
+Rectangular_Tube.csv ยังมีชื่อ 775x38 แต่ h=5.00; ต้องกลับไปยืนยันแหล่งข้อมูล ห้ามเดาแก้เฉพาะ comma
+
+F07 — HIGH: loader drops a genuine section [EXECUTED FUNCTION]
+app/utils.py: df_generator always df.iloc[1:].
+H-Sections.csv ไม่มี unit row; first real section 100x100 ถูกตัดออก ผลเริ่ม 125x125
+รันเฉพาะ AST ของฟังก์ชันเดิมกับ pandas จริง เพื่อแยกจาก dependency tabulate ที่ไม่ติดตั้งใน runtime นี้ ไม่ใช่ full application test
+
+F08 — HIGH: invalid capacity can produce SECTION OK [EXECUTED]
+applications/interaction.py: zero moment capacity replaced with 1.
+Probe Pu=0, phiPn=100, Mux=0.5, phiMnx=0, Muy=0, phiMny=0:
+printed interaction=0.50, SECTION OK.
+นี่คือการพิสูจน์ missing validation ของ invalid input ไม่ใช่ valid structural design example
+ข้อเสนอ: invalid/unsupported/incomplete ต้องมีสถานะของตัวเอง ไม่แทนค่ากำลังรับด้วยเลขสมมติ
+
+F09 — HIGH: section modulus semantics and formula audit [STATIC + BOOK]
+Book appendix p.153 explicitly maps table Zx/Zy to elastic Sx/Sy in the manual.
+Tube/pipe yielding routines multiply fields named Zx/Z directly as plastic modulus.
+เช่น Square_Tube 25x25: Ix=1.48 cm4; 2Ix/h=1.184 cm3 ใกล้ Zx=1.19 จึงต้องยืนยันว่า field นี้คือ elastic S ก่อนคำนวณ plastic strength.
+Other audit items:
+- FLB.hc_minor slender branch multiplies Fcr*Fy instead of Fcr*Sy in book eq.(48), p.38.
+- Kc uses max(0.76, ...) instead of bounded interval stated on book p.31.
+- tools/section_properties.py Rpc/Rpt returns Iyc/Iyt with 1e-8 conversion tagged cm4.
+- pipe NC branch uses different magnitude conversion from adjacent branches.
+ไม่ให้ patch สูตรลำพังโดยไม่ตรวจ derivation, units และ callers ทั้งสาย
+
+F10 — MEDIUM/HIGH: workflow cannot be reused as an engine [STATIC]
+Calculations, input(), print(), data loading และ defaults ปะปนกัน
+WT functions มักพิมพ์ classification แต่ไม่ส่ง classification object; user เลือก label/C/NC/S เองภายหลัง
+Tube.call ไม่คืน result; interaction checks เน้น print.
+ผู้ใช้สามารถเลือก branch ไม่สอดคล้อง geometry โดยไม่มี central guard
+
+F11 — MEDIUM: broken internal dependencies and package boundary [STATIC + DISCOVERY]
+Roof apps import utils.section_generator; current app/utils.py ไม่มีชื่อนี้
+analysis/beam_analysis.py imports app.utils.xi_coordinate; ไม่มีฟังก์ชันนี้ใน utility แต่ analysis/plot.py มี method ชื่อเดียวกัน
+setup.py uses find_packages(); actual discovery on complete text snapshot returns [] และ tree ไม่มี __init__.py
+การติดตั้งตาม README จึงยังไม่มีหลักฐานว่าได้ package/entrypoints/data ที่พร้อมใช้
+ไม่ได้ติดตั้ง package เต็มหรือทดสอบทุก CLI ใน environment เดิมของ PO
+
+F12 — MEDIUM: no reproducible engineering baseline [INVENTORY]
+ไม่พบ test suite, CI, dependency lock, design-basis register, accepted example set, project Save/Open workflow หรือ report artifact exporter ที่เป็นระบบ
+console report ไม่ใช่เอกสารคำนวณที่ reopen/reproduce/version ได้
+30/30 syntax pass ไม่ลบล้าง findings เหล่านี้
+
+4. REUSE AND REFACTOR DISPOSITION
+================================
+
+REUSE AS CANDIDATES — AFTER VERIFICATION:
+- Chapter-oriented intent in applications/ and tools/
+- H-section data subset with independent provenance/precision checks
+- Individual mathematical helpers where units and tests can be made explicit
+- Roof workflow knowledge, prompts and diagrams as requirements evidence
+- Beam solver architecture as a later analysis candidate, not first-release dependency
+
+REPAIR / EXTRACT:
+- Material/load records: add explicit units/basis without unnecessary frameworks
+- Capacity functions: return structured results; move input/output outside arithmetic
+- Classification: derive from geometry/material/source rules and route deterministically
+- Catalog ingestion: strict schema, numeric and physical validation; no silent coercion to accepted NaN
+- Shared helpers: consolidate only after checking behavior and callers
+
+QUARANTINE FROM VERIFIED PRODUCT CLAIMS:
+- Existing failing compression/LTB/interaction paths until repaired and tested
+- All unverified cold-formed roof sizing and load combinations
+- Experimental bolt/base-plate scripts
+- Unfinished slender/FTB/built-up cases
+
+DEFER:
+- Full-building solver, CAD/BIM import, optimization, cloud collaboration/accounts
+- All-section/all-chapter completeness
+- Desktop/Web implementation decision until workflow and deployment needs are reviewed
+
+Alternative assessment:
+A. Wrap current scripts in a new UI: fastest visible result, but carries incorrect data/results and hidden scope; not recommended.
+B. Verify/extract one useful member workflow, then expand: preferred; reuses evidence while bounding correctness.
+C. Complete rewrite: not justified yet; loses useful prior work and does not automatically solve formula/data verification.
+A new folder tree alone is not the recovery objective.
+
+5. PROPOSED SHARED ENGINEERING RULES — NOT YET ACCEPTED
+======================================================
+
+R1. One explicit design basis per calculation.
+Store book/standard title, edition, relevant clauses, approved deviations/errata, material source and catalog revision.
+Do not silently modernize coefficients or mix book-era examples with another standard edition.
+ASD and LRFD share appropriate nominal capacities, but factors and demand combinations are method-specific.
+Do not derive ASD demand by dividing LRFD demand by a generic factor.
+
+R2. Explicit units and sign/axis conventions.
+Recommend internal N, mm, MPa; convert at input/output boundaries.
+Store force vs mass distinctly; kg labels in legacy scripts require a documented interpretation.
+Distinguish S_elastic from Z_plastic, section axes from global axes, member length from unbraced lengths.
+Use full precision in calculations; round display only.
+
+R3. Catalog as validated engineering data.
+Stable section identity includes full dimensions/thickness, not HxB alone.
+Keep source, units, edition, manufacturing category, precision and verified/unverified state.
+Check number of columns, finite positive required values, geometry consistency and relations such as r²≈I/A within justified tolerance.
+Derived properties need documented assumptions; missing source data must not silently become a default.
+Only the subset needed for the accepted first scope must be verified initially; do not clean all catalogs speculatively.
+
+R4. Traceable results rather than bare pass/fail.
+Each check returns inputs, assumptions, clause/formula reference, intermediates, nominal/design strength, demand, ratio, applicability and governing check.
+Statuses: PASS, FAIL, INVALID_INPUT, UNSUPPORTED, NOT_CHECKED.
+An overall status must not imply serviceability/connections/global stability were checked when they were not.
+Use "supported strength checks passed" where that is the actual scope.
+
+R5. Separate calculation from interaction and storage.
+Keep domain arithmetic independent from terminal prompts, UI, plotting and persistence.
+Use the existing functions as reuse candidates; final file structure is an Engineer decision to justify against evidence.
+Conceptual responsibilities: validated data; calculation rules; workflow orchestration; UI/report/storage adapters.
+No requirement to build two UIs or a network API in advance.
+
+R6. Save editable inputs independently from exported reports.
+For the first product workflow, preserve project/member identity, units, assumptions, input forces, basis/catalog/calculator versions and result context.
+Reopening must identify stale results if inputs/basis change.
+Save failure must retain recoverable work; report output must match the actual recorded calculation.
+This is a proposed STRD requirement, not an automatic transfer of Progress Studio's workbook model.
+
+R7. Independent verification.
+Book examples are reference evidence, not unquestionable test oracles.
+Book p.142 example 10.6.1 states Pu=276 kN but later prints 279 in a weld-length expression; previously inspected page image confirms the inconsistency.
+Record discrepancy and justified reference value instead of forcing software to duplicate a typo.
+Use hand checks, intermediate assertions, boundary tests and negative cases as well as examples.
+Do not mark two copies of the same implementation as independent verification.
+
+6. FIRST USEFUL PRODUCT SCOPE — RECOMMENDATION
+=============================================
+
+Candidate: H-beam strength checker from supplied actions.
+Why: connects existing h_beam/flexural code and H catalog to concrete book examples, and offers a clear end-user task.
+Alternative: axial H-column checker is smaller, but currently lacks correct branch/factor/axis treatment and would still require similar data/validation foundations.
+First-choice recommendation remains H-beam; PO may choose column based on actual work priority.
+
+Proposed initial envelope:
+- Rolled, doubly symmetric H section, compact flange/web for selected material.
+- Major-axis bending and applicable web shear checks only.
+- ASD and LRFD with separately specified demands.
+- Explicit unbraced length and Cb assumptions/input; validate applicability and support/torsional restraint assumptions.
+- No axial force, biaxial bending, torsion, slender/built-up sections, web openings or tension-field action.
+- Concentrated load/local bearing/connection/global stability checks not included in this initial checker; state NOT_CHECKED and reject use beyond the accepted envelope where appropriate.
+- No deflection result inferred from moment/shear maxima alone.
+- Serviceability initially identified as separate/unverified, unless PO requests a separately scoped loading-model or imported-deflection feature.
+
+Suggested input:
+project/member reference; basis/method; section ID; material; Mu or Ma; Vu or Va; Lb; Cb and its basis; support/restraint assumptions.
+Suggested output:
+section classification; applicable checks; capacities and ratios; governing condition; calculation trace; all exclusions.
+
+Product flow:
+Create/Open project -> add member -> enter/validate -> calculate -> inspect trace -> change section and recalculate -> Save/Open -> export report.
+Candidate comparison can follow later; first release need not contain an automatic optimizer.
+
+7. PROPOSED MILESTONES
+======================
+All milestones below are proposals. Completing MS-0 does NOT authorize MS-1.
+
+MS-1 — Reproducible foundation, verified data subset and calculation proof
+Objective: establish a testable foundation before a product interface.
+Scope:
+- Adopt accepted collaboration authority and one documentation index for STRD.
+- Record accepted basis/scope/units/result conventions.
+- Make the scoped package/test entrypoint reproducible.
+- Verify only H-section/material data needed by proof cases.
+- Implement one limited headless H-beam calculation proof after clause review.
+- Define fail/invalid/unsupported states and expected-result provenance.
+Dependencies: PO approves first scope and book-based verification basis.
+Expected areas: README.md, setup.py or justified replacement; data/sections subset/adapter; relevant applications/flexural.py and tools helpers; new docs and focused tests. Exact layout is not mandated.
+Tests: catalog schema/units; independent yielding proof from 10.3.1; invalid inputs; deterministic results; packaging/import smoke; reproduce relevant legacy defects as regression cases where repaired.
+Acceptance: reproducible setup, no unverified data used in proof, traceable nominal/design capacities, precise scope stated, all scoped automated tests pass.
+Deferred: GUI, Save/Open product, complete LTB/shear implementation if beyond the proof, compression/connection/solver.
+Delivery: complete changed files, baseline/manifest, exact commands/results, .txt handoff; no Git writes by Engineer.
+
+MS-2 — Verified H-beam bending and shear engine
+Objective: complete accepted first strength-check envelope.
+Scope: automatic compactness/applicability; yielding/LTB across applicable ranges; web shear; both ASD/LRFD factors/demands; structured trace and scope-aware summary.
+Dependencies: MS-1 accepted.
+Expected areas: scoped calculation/data modules; unit/regression fixtures and engineering references; docs coverage register.
+Tests: 10.3.1–10.3.2 and 10.4.1 where applicable; independently established additional cases; Lb at/below/above Lp/Lr; Cb rules/caps; classification boundaries; force/capacity zero and nonfinite data; all supported checks and rejected unsupported inputs; nominal/design units consistency.
+Acceptance: reference and boundary cases pass with documented tolerances; intermediate values reviewed; no unsupported case receives generic SECTION OK.
+Deferred: product UI/persistence, automated optimization, analysis, remaining sections/chapters.
+
+MS-3 — First end-to-end product workflow
+Objective: make the verified scope useful to a human user.
+Scope: ONE selected interface; Create/Open/Save; member editing; validation; readable summary and detailed report; versioned reproducibility.
+Dependencies: MS-2 accepted AND PO platform/workflow decision.
+Expected areas: UI adapter, project storage, report renderer, workflow tests and user guide. Reuse the same engine.
+Tests: input -> calculate -> edit -> recalculate; Save/Close/Reopen; failed save; malformed project; stale-result handling; report vs engine consistency; actual selected runtime.
+Acceptance: automated gates separate from PO/runtime acceptance; no input loss; original inputs/basis recovered; calculations/report agree; limitations visible.
+Deferred: second UI, cloud accounts/team features, CAD/Revit integration, full solver.
+Before authorization resolve: offline needs, OS/browser targets, report format, and whether scoped strength-only release is useful enough.
+
+MS-4 — Axial member and combined-action extension
+Objective: add accepted member types beyond the initial beam envelope.
+Scope proposal: bounded H-section axial compression/tension and combined actions; define connection-dependent tension inputs explicitly; both axes and unsupported cases.
+Dependencies: accepted initial product and separate detailed scope approval.
+Expected areas: compression/interaction/new tension services, member workflow, engineering reference tests.
+Tests: relevant 10.1/10.2/10.5 examples; slenderness/branch limits; sign/axis conventions; connection net-area inputs; independence of ASD/LRFD actions; regression of beam scope.
+Acceptance: every enabled limit state traced and independently checked; product does not imply complete connection/global stability design.
+Deferred: remaining shapes/built-up/slender/FTB until explicitly included.
+This milestone may be split after scope is chosen; no promise to implement all chapter-3/4/7 cases together.
+
+MS-5 — Bounded connection workflow
+Objective: one explicit connection family end-to-end.
+Scope: select one weld/bolt connection and authoritative supplementary references; define geometry/material/forces and all applicable checks.
+Dependencies: separate PO choice and acquisition/review of referenced standards.
+Expected areas: connection engine/input model/report/tests, reusing verified material and result conventions.
+Tests: relevant 10.6 example plus geometry, failure mode, spacing/edge distance and invalid-input cases for chosen family.
+Acceptance: complete check list for that family, detailed report and engineering review; no general "all connections" claim.
+Deferred: base plates/moment connections/other families unless separately approved.
+
+MS-6 — Analysis integration investigation (future, not implementation)
+Objective: determine whether legacy beam solver or another approach should supply design actions.
+Scope: provenance/license, units, supports, load cases/combinations, sign conventions, numerical and equilibrium verification, interface to member checks.
+Dependencies: demonstrated need; independent authorization.
+Expected areas if later implemented: analysis/, adapters, benchmark tests; investigation itself changes no production code.
+Tests for future proof: known simply supported/cantilever/continuous-beam benchmarks, reaction equilibrium, mesh/load boundaries and demand transfer.
+Acceptance: investigation decision before implementation; solver outputs do not establish whole-building stability automatically.
+Deferred: 3D building solver, seismic/fire/durability and BIM authoring.
+
+8. PLATFORM DECISION
+====================
+No platform is selected by MS-0.
+
+Desktop suits an accepted offline/local-file workflow.
+Web suits an accepted browser/distribution workflow.
+These are tradeoff categories, not a recommendation to deploy either immediately.
+No framework/toolchain selection or cost claim has been made.
+
+At MS-3 planning, decide together:
+- Who uses it and on which devices?
+- Must calculation/save work without internet?
+- Are files local by default or shared?
+- What report format is required?
+- What installation/update effort is acceptable?
+Keep the engine independent now; do not build speculative abstractions for both platforms.
+
+9. VERIFICATION EXECUTED AND LIMITATIONS
+=========================================
+Environment: Linux; Python 3.12.14; NumPy 2.3.5; pandas 2.2.3.
+Source retrieved through read-only GitHub tools pinned to the baseline; local text copies normalize line endings.
+No repository Git operations performed.
+No production modifications; probes are disposable investigation work.
+
+Actual outcomes:
+- Python syntax: 30 files compiled, 0 syntax errors.
+- CSV field counts: 12/14 structurally consistent; 2/14 malformed. This is not numeric data certification.
+- pandas: rectangular tube fails parsing; square tube reads despite shifted data.
+- Six focused behavior probes: compression mismatch; Mn crash; J crash; FE crash; zero-capacity SECTION OK; first-section loss. All six reproduced.
+- Package discovery: [].
+- Static missing utility definitions confirmed.
+- Existing automated regression suite: none found; no regression PASS claimed.
+- Complete app run: NOT VERIFIED. Initial direct import of utils encountered missing tabulate in this runtime; isolated loader probe used unmodified function AST with real pandas.
+- Native Windows/macOS/browser, Excel, production deployment, report artifact and PO acceptance: NOT PERFORMED / not applicable to this investigation deliverable.
+- All formulas/CSV values/all book examples: NOT FULLY VERIFIED.
+- External current standards/legal compliance: NOT VERIFIED.
+
+Successful reproduction means evidence of a defect, not a passing software acceptance gate.
+
+10. HANDOFF AND NEXT DECISIONS
+===============================
+Deliverable: STRD_MS0_ASSESSMENT_AND_RECOVERY_PLAN.txt (this file, including evidence appendix).
+Repository changed files: NONE.
+Implementation patch/commit message: NOT APPLICABLE — investigation only.
+Git state: no branch created, no commit/push/merge/tag/release/deploy.
+Reusable investigation note status: PROPOSED; promote only after PO acceptance.
+Next Engineer should read this accepted report, verify baseline delta, then read only relevant source/tests. Do not repeat the full audit unless the baseline or scope warrants it.
+
+Product Owner acceptance/decision list:
+1. Accept MS-0 assessment and recovery direction, keeping legacy code as reference and verifying capability before product claims?
+2. Accept first target: bounded rolled compact H-beam major-axis bending + shear checker from supplied actions, ASD/LRFD, with explicit unperformed checks?
+3. Authorize MS-1 only as scoped above, leaving Desktop/Web and MS-2 onward unapproved?
+
+Acceptance of the report alone does not authorize Git writes or later milestones.
+Stop at this handoff.
+
+APPENDIX A — REPRODUCTION NOTES
+===============================
+Use source files at the exact STRD baseline. Commands below are for a future reviewer with those files locally; they do not imply native desktop acceptance.
+
+Syntax:
+python -m compileall -q app applications tools analysis setup.py
+(Within MS-0 compile() was used in memory to avoid writing into source.)
+
+Focused runtime probes, from repository root with numpy available:
+
+from types import SimpleNamespace as NS
+from applications.compression import Compression
+from applications.flexural import LTB, calc_var
+from applications.tube_section import Tube
+from applications.interaction import Interaction
+
+m = NS(Fy=245, Es=200000)
+Compression(m).flexural_control(79.7)
+# Observed 245.0 MPa; book example 10.2.1 approximately 176 MPa.
+
+s = NS(ry=4.32, Iy=1870, H=450, B=200, tf=14, tw=9,
+       Sx=1490, Zx=1621.489)
+# Execute each exception probe separately or in its own try/except:
+LTB(m).hc_major(m, s, 397.1, 1, 1, 400000, 800000000000)
+# UnboundLocalError: Mn.
+calc_var(s, 245, 200000, 3000, 1490000, 10000000, 365000000)
+# UnboundLocalError: J.
+Tube(m).FLB(NS(b=300, h=300, t=6), "S", 100)
+# UnboundLocalError: FE.
+Interaction.flex_comp_MxMy(0, 100, 0.5, 0, 0, 0)
+# Prints 0.50 and SECTION OK for invalid zero-capacity input.
+
+These artificial branch/validation probes do not represent complete design examples.
+Use csv.reader to compare nonblank row lengths against the header, and pandas.read_csv to reproduce parser behavior.
+The exact structured observation log follows in Appendix B.
+
+
+APPENDIX B — STRUCTURED OBSERVATIONS FROM MS-0
+================================================
+[
+  {
+    "check": "syntax",
+    "observed": {
+      "files": 30,
+      "errors": []
+    }
+  },
+  {
+    "check": "environment",
+    "observed": {
+      "python": "3.12.14",
+      "numpy": "2.3.5",
+      "pandas": "2.2.3"
+    }
+  },
+  {
+    "check": "packages",
+    "observed": []
+  },
+  {
+    "check": "compression_10_2_1",
+    "observed": {
+      "actual_Fcr_MPa": 245.0,
+      "book_Fcr_MPa": 176,
+      "phi_default": 0.65
+    }
+  },
+  {
+    "check": "LTB_short",
+    "observed": {
+      "exception": "UnboundLocalError",
+      "message": "cannot access local variable 'Mn' where it is not associated with a value"
+    }
+  },
+  {
+    "check": "calc_var_J",
+    "observed": {
+      "exception": "UnboundLocalError",
+      "message": "cannot access local variable 'J' where it is not associated with a value"
+    }
+  },
+  {
+    "check": "tube_slender_FE",
+    "observed": {
+      "exception": "UnboundLocalError",
+      "message": "cannot access local variable 'FE' where it is not associated with a value"
+    }
+  },
+  {
+    "check": "zero_capacity_interaction",
+    "observed": "7.1.1: Pu/2*Pn + (Mux/Mnx + Muy/Mny) = 0.50\nSECTION OK"
+  },
+  {
+    "check": "csv:Channels.csv",
+    "observed": {
+      "header_fields": 17,
+      "bad_rows": [],
+      "reader": {
+        "shape": [
+          16,
+          17
+        ]
+      }
+    }
+  },
+  {
+    "check": "csv:Deform_Bar.csv",
+    "observed": {
+      "header_fields": 11,
+      "bad_rows": [],
+      "reader": {
+        "shape": [
+          30,
+          11
+        ]
+      }
+    }
+  },
+  {
+    "check": "csv:Double-Channel.csv",
+    "observed": {
+      "header_fields": 16,
+      "bad_rows": [],
+      "reader": {
+        "shape": [
+          16,
+          16
+        ]
+      }
+    }
+  },
+  {
+    "check": "csv:Double-Equal_Angles.csv",
+    "observed": {
+      "header_fields": 15,
+      "bad_rows": [],
+      "reader": {
+        "shape": [
+          46,
+          15
+        ]
+      }
+    }
+  },
+  {
+    "check": "csv:Double_Channel.csv",
+    "observed": {
+      "header_fields": 16,
+      "bad_rows": [],
+      "reader": {
+        "shape": [
+          16,
+          16
+        ]
+      }
+    }
+  },
+  {
+    "check": "csv:Double_Equal_Angles.csv",
+    "observed": {
+      "header_fields": 15,
+      "bad_rows": [],
+      "reader": {
+        "shape": [
+          46,
+          15
+        ]
+      }
+    }
+  },
+  {
+    "check": "csv:Double_Light_Lip_Channel.csv",
+    "observed": {
+      "header_fields": 17,
+      "bad_rows": [],
+      "reader": {
+        "shape": [
+          46,
+          17
+        ]
+      }
+    }
+  },
+  {
+    "check": "csv:Equal_Angles.csv",
+    "observed": {
+      "header_fields": 19,
+      "bad_rows": [],
+      "reader": {
+        "shape": [
+          46,
+          19
+        ]
+      }
+    }
+  },
+  {
+    "check": "csv:H-Sections.csv",
+    "observed": {
+      "header_fields": 16,
+      "bad_rows": [],
+      "reader": {
+        "shape": [
+          73,
+          16
+        ]
+      }
+    }
+  },
+  {
+    "check": "csv:Light_Lip_Channel.csv",
+    "observed": {
+      "header_fields": 17,
+      "bad_rows": [],
+      "reader": {
+        "shape": [
+          46,
+          17
+        ]
+      }
+    }
+  },
+  {
+    "check": "csv:Pipe.csv",
+    "observed": {
+      "header_fields": 8,
+      "bad_rows": [],
+      "reader": {
+        "shape": [
+          35,
+          8
+        ]
+      }
+    }
+  },
+  {
+    "check": "csv:Rectangular_Tube.csv",
+    "observed": {
+      "header_fields": 12,
+      "bad_rows": [
+        {
+          "line": 15,
+          "fields": 13
+        },
+        {
+          "line": 16,
+          "fields": 11
+        },
+        {
+          "line": 23,
+          "fields": 11
+        },
+        {
+          "line": 24,
+          "fields": 11
+        }
+      ],
+      "reader": {
+        "exception": "ParserError",
+        "message": "Error tokenizing data. C error: Expected 12 fields in line 15, saw 13\n"
+      }
+    }
+  },
+  {
+    "check": "csv:Square_Tube.csv",
+    "observed": {
+      "header_fields": 12,
+      "bad_rows": [
+        {
+          "line": 3,
+          "fields": 11
+        },
+        {
+          "line": 4,
+          "fields": 11
+        },
+        {
+          "line": 5,
+          "fields": 11
+        },
+        {
+          "line": 7,
+          "fields": 11
+        }
+      ],
+      "reader": {
+        "shape": [
+          32,
+          12
+        ]
+      }
+    }
+  },
+  {
+    "check": "csv:Z.csv",
+    "observed": {
+      "header_fields": 16,
+      "bad_rows": [],
+      "reader": {
+        "shape": [
+          19,
+          16
+        ]
+      }
+    }
+  },
+  {
+    "check": "loader_first_row",
+    "observed": {
+      "source": "100x100",
+      "loaded": "125x125",
+      "mode": "unmodified function AST; no tabulate dependency"
+    }
+  },
+  {
+    "check": "missing_utilities",
+    "observed": [
+      "section_generator",
+      "xi_coordinate"
+    ]
+  },
+  {
+    "check": "test_files",
+    "observed": []
+  }
+]
