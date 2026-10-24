@@ -1,5 +1,9 @@
 # MS-1: reproducible foundation and bounded bending proof
 
+## Current acceptance record
+
+PO accepted MS-1 and reported macOS verification: 21 tests PASS, JSON smoke PASS, merged/pushed to main 4778e38458dac9ea7bf5d94bf2d4b749646350fb, working tree clean. This is accepted PO evidence, not a Work claim of native execution. MS-2 is separately authorized; see [MS-2](MS2.md). The original MS-1 API/envelope below remains unchanged. Historical MS-1 deferrals do not override the later MS-2 authorization.
+
 ## Accepted Product Owner decisions
 
 Baseline main 1e1b820f0a30e86fa0fd15ce0f707ac8e2b71468. MS-0 accepted; reuse-first. First target is a rolled doubly symmetric compact H-beam, major-axis bending first and applicable shear subsequently. The supplied DPT manual is the initial ASD/LRFD verification basis. Work is authorized for MS-1 only. UI platform remains undecided. No current-code certification is implied.
@@ -35,4 +39,4 @@ Discrete bracing and full LTB equations, other sections/materials, noncompact/sl
 
 ## Acceptance status
 
-Implementation submitted; automated evidence is recorded in the handoff. PO acceptance pending. No native desktop acceptance, current-code approval or Git integration is claimed.
+MS-1 accepted as recorded above. Its automated proof does not establish a native Desktop UI or current-code certification. Work performed no Git operations; integration was reported by PO.

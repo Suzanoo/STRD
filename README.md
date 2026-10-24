@@ -1,19 +1,29 @@
-# STRD — steel design engineering proof
+# STRD — bounded steel strength checks
 
-MS-1 adds a bounded, headless major-axis bending proof for the continuously braced H450x200x9x14 example in the supplied DPT manual. See [documentation](docs/README.md), [supported scope](docs/MS1.md), [reference evidence](docs/REFERENCE_PROOF.md) and [setup/tests](docs/TESTING.md).
+The verified source package supports the book-based H450x200x9x14 fixture:
+major-axis bending with yielding/LTB, and unstiffened web shear, ASD/LRFD.
+MS-1 is accepted. MS-2 is implemented and submitted for review; MS-3 is not authorized.
+See [documentation](docs/README.md), [MS-2 applicability/API](docs/MS2.md),
+[reference evidence](docs/MS2_REFERENCE.md), and [setup/tests](docs/TESTING.md).
 
-From repository root, with Python 3.10+:
+From repository root, Python 3.10+ (standard library only):
 
 ```sh
 python -m unittest discover -s tests_verified -v
-python -m strd_verified
+python -m strd_verified.ms2_examples
+python verification/ms2_reference_calculations.py
 ```
 
-The proof uses only Python's standard library. It is not a general beam checker or current-code certification. Shear, discrete bracing/LTB, other sections, analysis and UI are deferred. PASS applies only to the documented bending check.
+The accepted MS-1 API `check_bending` and `python -m strd_verified` remain unchanged.
+The new APIs are `check_flexure`, `check_web_shear` and `moment_gradient_factor`.
+One verified section/material record is supported, not the legacy catalog.
+PASS applies only to the specified individual check and asserted assumptions;
+no whole-member, bracing-system, current-code or production certification is implied.
+Analysis, combined actions, UI and project Save/Open remain excluded.
 
 ## Legacy reference (unverified outside explicit proof)
 
-Original scripts/catalogs remain unchanged; known defects are documented in MS-0. The historical installation instructions below apply to legacy work, NOT the MS-1 source-tree proof. Installing dependencies does not verify legacy calculations.
+Original scripts/catalogs remain unchanged; known defects are documented in MS-0. The historical installation instructions below apply to legacy work, NOT the verified source-tree package. Installing dependencies does not verify legacy calculations.
 
 ### Tools
 
