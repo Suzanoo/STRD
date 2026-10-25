@@ -1,0 +1,80 @@
+{
+  "catalog_revision": "SYS-TIS-H-ED6-A2-1",
+  "sections": [
+    {
+      "section_id": "SYS-H-450x200x9x14-ED6",
+      "depth_mm": 450,
+      "width_mm": 200,
+      "web_mm": 9,
+      "flange_mm": 14,
+      "root_radius_mm": 18,
+      "plastic_modulus_x_mm3": 1680000,
+      "elastic_modulus_x_mm3": 1490000,
+      "radius_y_mm": 44,
+      "inertia_y_mm4": 18700000,
+      "torsion_j_mm4": 569000,
+      "warping_cw_mm6": 889000000000
+    },
+    {
+      "section_id": "SYS-H-500x200x10x16-ED6",
+      "depth_mm": 500,
+      "width_mm": 200,
+      "web_mm": 10,
+      "flange_mm": 16,
+      "root_radius_mm": 20,
+      "plastic_modulus_x_mm3": 2180000,
+      "elastic_modulus_x_mm3": 1910000,
+      "radius_y_mm": 43.3,
+      "inertia_y_mm4": 21400000,
+      "torsion_j_mm4": 859000,
+      "warping_cw_mm6": 1250000000000
+    }
+  ],
+  "material": {
+    "material_id": "SYS-SS400-TLE16-DPT-E200000-v1",
+    "fy_mpa": 245,
+    "elastic_modulus_mpa": 200000
+  },
+  "material_max_thickness_mm": 16,
+  "sources": [
+    {
+      "id": "SYS-ENGINEER-ED6",
+      "filename": "SYS-Catalog-Engineer-Edit6.pdf",
+      "sha256": "b60c8c729cefa31075cfd9836af77dc1f644ddd89bd853b8dd09419b984a0458",
+      "printed_pages": [
+        6,
+        8,
+        15,
+        16,
+        17
+      ],
+      "pdf_pages": [
+        8,
+        10,
+        17,
+        18,
+        19
+      ],
+      "use": "Dimensions, Sx elastic, Zx plastic, Iy, ry, J, Cw; SS400 thickness/Fy; geometric verification equations"
+    },
+    {
+      "id": "SYS-THAI-AUG2026",
+      "filename": "SYS-Catalog-Thai-Effective-August2026.pdf",
+      "sha256": "8d55c8575a1c744e919e6e7affef934f9afb5b347331d4724db6fba238a7c59a",
+      "printed_pages": [
+        2,
+        5
+      ],
+      "pdf_pages": [
+        4,
+        7
+      ],
+      "use": "Cross-check dimensions, elastic modulus (source label Zx), Iy, ry and SS400 thickness/Fy"
+    },
+    {
+      "id": "DPT-ISBN9789744585974",
+      "sha256": "8e7f8411228698cc3cffdb69ce50e284e4a95f535d48052cb61af0f5c47b95a9",
+      "use": "Design provisions and E=200000 MPa; accepted docs/MS2_REFERENCE.md"
+    }
+  ]
+}

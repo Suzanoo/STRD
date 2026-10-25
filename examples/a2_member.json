@@ -1,0 +1,79 @@
+{
+  "schema_version": "STRD-MEMBER-1",
+  "basis_id": "DPT-STEEL-MANUAL-ISBN9789744585974-H-BENDING-SHEAR-v1",
+  "catalog_revision": "SYS-TIS-H-ED6-A2-1",
+  "member_id": "B1",
+  "section_id": "SYS-H-450x200x9x14-ED6",
+  "material_id": "SYS-SS400-TLE16-DPT-E200000-v1",
+  "length_mm": 8000,
+  "assumptions": {
+    "prismatic_undamaged": true,
+    "support_twist_restrained": true,
+    "segment_ends_braced": true,
+    "major_axis_only": true,
+    "web_plane_only": true,
+    "unstiffened_web": true
+  },
+  "segments": [
+    {
+      "segment_id": "S1",
+      "start_mm": 0,
+      "end_mm": 4000,
+      "continuous_restraint": false
+    },
+    {
+      "segment_id": "S2",
+      "start_mm": 4000,
+      "end_mm": 8000,
+      "continuous_restraint": false
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "ASD-1",
+      "method": "ASD",
+      "action_source": "Demonstration supplied demands; not a generated load combination",
+      "segments": [
+        {
+          "segment_id": "S1",
+          "moment_knm": 200,
+          "shear_kn": 350,
+          "cb": 1,
+          "cb_source": "CONSERVATIVE",
+          "cb_reference": "Cb=1 for this braced segment"
+        },
+        {
+          "segment_id": "S2",
+          "moment_knm": 200,
+          "shear_kn": 350,
+          "cb": 1,
+          "cb_source": "CONSERVATIVE",
+          "cb_reference": "Cb=1 for this braced segment"
+        }
+      ]
+    },
+    {
+      "case_id": "LRFD-1",
+      "method": "LRFD",
+      "action_source": "Demonstration supplied demands; not a generated load combination",
+      "segments": [
+        {
+          "segment_id": "S1",
+          "moment_knm": 310,
+          "shear_kn": 542.5,
+          "cb": 1,
+          "cb_source": "CONSERVATIVE",
+          "cb_reference": "Cb=1 for this braced segment"
+        },
+        {
+          "segment_id": "S2",
+          "moment_knm": 310,
+          "shear_kn": 542.5,
+          "cb": 1,
+          "cb_source": "CONSERVATIVE",
+          "cb_reference": "Cb=1 for this braced segment"
+        }
+      ]
+    }
+  ]
+}

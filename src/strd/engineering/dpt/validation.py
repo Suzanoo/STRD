@@ -23,3 +23,16 @@ def _geometry(section: HSection, material: ReferenceMaterial) -> float:
     clear = section.depth_mm - 2 * (section.flange_mm + section.root_radius_mm)
     _positive(clear)
     return clear
+
+
+def _web_geometry(section, material: ReferenceMaterial) -> float:
+    """Only properties required for web shear; full legacy integrity stays at its API."""
+    _positive(section.depth_mm, section.width_mm, section.web_mm,
+              section.flange_mm, section.root_radius_mm,
+              material.fy_mpa, material.elastic_modulus_mpa)
+    if not (section.web_mm < section.width_mm and
+            material.fy_mpa < material.elastic_modulus_mpa):
+        raise ValueError('Inconsistent section/material reference data.')
+    clear = section.depth_mm - 2 * (section.flange_mm + section.root_radius_mm)
+    _positive(clear)
+    return clear

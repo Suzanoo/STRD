@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "strd-engine"
-version = "0.1.0"
+version = "0.2.0"
 description = "Bounded book-based H-section strength checks"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -16,4 +16,4 @@ include = ["strd", "strd.*", "strd_verified"]
 namespaces = false
 
 [tool.setuptools.package-data]
-strd = ["py.typed"]
+strd = ["py.typed", "catalog/*.json"]

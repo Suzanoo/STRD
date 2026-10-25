@@ -4,7 +4,7 @@ from strd.domain.contracts import StrengthResult
 from dataclasses import asdict
 from strd.domain.validation import _number
 from .basis import MS2_BASIS_ID as BASIS_ID, MS2_CALCULATOR_VERSION as CALCULATOR_VERSION, SOURCE_SHA256
-from .validation import _positive, _Unsupported
+from .validation import _positive, _Unsupported, _geometry
 from .flexure import _flexural_strength
 from .shear import _web_shear_strength
 
@@ -110,13 +110,16 @@ def _check_flexure(request: object, section: HSection, material: ReferenceMateri
                              "design":"LRFD=0.9*Mn; ASD=Mn/1.67"})
 
 
-def _check_web_shear(request: object, section: HSection, material: ReferenceMaterial) -> StrengthResult:
+def _check_web_shear(request: object, section: HSection, material: ReferenceMaterial,
+                     *, full_reference_integrity=True) -> StrengthResult:
     """Check web-plane shear alone, unstiffened rolled H, demand in kN."""
     check = "SHEAR"
     error = _validate(request, check, _SHEAR,
                       ("prismatic_undamaged", "web_plane_only", "unstiffened_web"), ("shear_kn",), section, material)
     if error: return error
     try:
+        if full_reference_integrity:
+            _geometry(section, material)  # Retain accepted fixed-fixture API validation.
         mid = _web_shear_strength(section, material)
         demand = request["shear_kn"] * 1000
         capacity = mid["lrfd_capacity_n"] if request["method"] == "LRFD" else mid["asd_capacity_n"]

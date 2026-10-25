@@ -1,39 +1,37 @@
 # STRD — bounded steel strength engine
 
-MS0/MS1/MS2 accepted; A1 package migration submitted for PO review. A2 not authorized.
-One verified book fixture only: H450x200x9x14, Fy=245 MPa, E=200000 MPa.
-Supports continuous-bracing bending, major-axis bending/LTB, unstiffened web shear,
-ASD/LRFD and Cb arithmetic. PASS is conditional on the named check and caller assertions,
-not whole-member, bracing-system or production structural-design certification.
-No UI, project persistence, analysis, new materials or catalog expansion.
-
-Read [documentation](docs/README.md), [A1](docs/A1.md), [API/envelope](docs/MS2.md),
-and [setup/testing](docs/TESTING.md). Python 3.10+ syntax, zero runtime dependencies.
-Actual Work runtime: Linux CPython 3.12.14; other runtimes need their own verification.
-
-Dependency-free source test entry:
+MS0/MS1/MS2/A1 accepted. A2 submitted for PO review: two curated SYS rolled-H
+sections and headless member/case/segment assessment under the accepted DPT book.
+No UI, project persistence, force generation or additional design limit states.
 
 ```sh
 python scripts/run_tests.py --source
 ```
 
-After installing the wheel, from any directory:
+After wheel installation:
 
 ```python
-from strd import check_bending, check_flexure, check_web_shear, moment_gradient_factor
+from strd.catalog import catalog_snapshot
+from strd.assessment import assess_member
+inventory = catalog_snapshot()
+# result = assess_member(request_dictionary)
 ```
-
-Existing strd_verified imports and the two commands remain compatible after installation:
 
 ```sh
-python -m strd_verified
-python -m strd_verified.ms2_examples
+python -m strd.assessment examples/a2_member.json
 ```
 
-The src layout requires installation for normal imports. Typed request/result definitions
-are in strd.domain.contracts; runtime validation remains authoritative. Fixed example
-records are not a manufacturer catalog. Do not bypass public applicability gates.
+The sample has two segments and two independently supplied ASD/LRFD cases. It is
+not a load-combination generator. CHECKS_PASS is conditional flexure/shear success,
+not whole-member acceptance; read coverage, each check and not_checked together.
 
-Legacy code/catalogs/setup are [archived](archive/legacy/README.md), excluded from the
-wheel, not certified by these tests. The existing alignment-chart image is unchanged
-and excluded. No source book, public release or new license grant is supplied.
+Existing `strd` and `strd_verified` four-function APIs retain the fixed DPT book
+fixture and accepted response contract. Manufacturer data does not replace it.
+
+Read [docs](docs/README.md), [A2/API](docs/A2.md), [provenance](docs/A2_DATA.md),
+[testing](docs/TESTING.md) and [roadmap proposals](docs/ROADMAP_REVIEW.md).
+Python 3.10+ syntax, stdlib-only runtime; Work verification on Linux CPython 3.12.14.
+Native acceptance and public release are separate gates. Source layout requires
+installation for normal imports; tests have explicit --source mode.
+Legacy is archived and excluded from wheels. Full source books/catalogs are not
+redistributed; no new license grant or structural-design certification is implied.

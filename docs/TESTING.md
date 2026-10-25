@@ -1,3 +1,43 @@
+# Current A2 verification
+
+A1 is PO accepted at 8017af4. Historical A1 evidence below is retained;
+its old pending-acceptance statements do not override current PO decisions.
+
+From repository root:
+
+```sh
+python3 -m venv --without-pip .venv-a2-source
+.venv-a2-source/bin/python scripts/run_tests.py --source
+python3 verification/a2_reference_calculations.py
+python3 -m venv .venv-a2
+.venv-a2/bin/python -m pip install --no-index --no-deps PATH_TO/strd_engine-0.2.0-py3-none-any.whl
+.venv-a2/bin/python scripts/run_tests.py
+.venv-a2/bin/python -m strd.assessment examples/a2_member.json
+.venv-a2/bin/python scripts/verify_distribution.py PATH_TO/strd_engine-0.2.0-py3-none-any.whl
+```
+
+Windows: use the environment's Scripts/python.exe. Work runtime remains Linux
+CPython 3.12.14; native macOS/Windows A2 results are not inferred. Source tests include
+accepted 55 methods plus A2 source/unit/independent calculation, coverage, cases,
+faults, provenance and compatibility checks. Actual totals/logs are in the handoff.
+Fresh installed verification checks exact JSON resource bytes and runs all tests,
+legacy smoke commands, independent worksheet and A2 sample from outside repository.
+
+Build with pinned requirements-build.txt, then:
+
+```sh
+python -m pip wheel --no-deps --no-build-isolation --no-index --wheel-dir dist .
+python -c "from setuptools.build_meta import build_sdist; build_sdist('dist')"
+python scripts/verify_distribution.py dist/strd_engine-0.2.0-py3-none-any.whl
+```
+
+The wheel has no runtime dependency. sdist includes examples and verification.
+Original PDFs are not needed to execute tests; manual source audit uses the supplied
+PDFs and source hashes in A2_DATA.md. Golden response tests remain compatibility
+evidence; independent book/Decimal cases remain engineering numerical evidence.
+
+---
+
 # Reproducible A1 verification
 
 Python 3.10+ syntax; actual Work runtime Linux CPython 3.12.14. Use fresh environments.

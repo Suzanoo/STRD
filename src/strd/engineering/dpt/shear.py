@@ -2,7 +2,7 @@
 from strd.domain.properties import HSection, ReferenceSection, ReferenceMaterial
 from strd.domain.contracts import StrengthResult
 import math
-from .validation import _positive, _geometry, _Unsupported
+from .validation import _positive, _web_geometry, _Unsupported
 
 def _shear_coefficients(ratio, e, fy):
     """Book coefficient branches, separated for exact boundary verification."""
@@ -31,7 +31,7 @@ def _shear_coefficients(ratio, e, fy):
 
 def _web_shear_strength(section: HSection, material: ReferenceMaterial) -> dict:
     """Book 6.2, unstiffened rolled H, kv=5, no tension-field action."""
-    clear = _geometry(section, material)
+    clear = _web_geometry(section, material)
     ratio = clear / section.web_mm
     coefficients = _shear_coefficients(ratio, material.elastic_modulus_mpa, material.fy_mpa)
     area = section.depth_mm * section.web_mm  # Aw=d*tw, NOT clear h*tw

@@ -20,10 +20,10 @@ def main():
     with zipfile.ZipFile(wheel) as package:
         names=package.namelist()
         if len(set(names))!=len(names):raise ValueError('Duplicate entries')
-        if any(not n.startswith(('strd/','strd_verified/','strd_engine-0.1.0.dist-info/')) for n in names):raise ValueError('Unexpected wheel contents')
-        meta=BytesParser().parsebytes(package.read('strd_engine-0.1.0.dist-info/METADATA'))
-        if meta['Name']!='strd-engine' or meta['Version']!='0.1.0' or meta.get_all('Requires-Dist'):raise ValueError('Wrong metadata/dependencies')
-        expected={p.relative_to(root/'src').as_posix():p for p in (root/'src').rglob('*') if p.is_file() and (p.suffix=='.py' or p.name=='py.typed')}
+        if any(not n.startswith(('strd/','strd_verified/','strd_engine-0.2.0.dist-info/')) for n in names):raise ValueError('Unexpected wheel contents')
+        meta=BytesParser().parsebytes(package.read('strd_engine-0.2.0.dist-info/METADATA'))
+        if meta['Name']!='strd-engine' or meta['Version']!='0.2.0' or meta.get_all('Requires-Dist'):raise ValueError('Wrong metadata/dependencies')
+        expected={p.relative_to(root/'src').as_posix():p for p in (root/'src').rglob('*') if p.is_file() and (p.suffix in ('.py', '.json') or p.name=='py.typed')}
         actual={n for n in names if n.startswith(('strd/','strd_verified/'))}
         if actual!=set(expected):raise ValueError('Wheel/source inventory mismatch')
         for name,file in expected.items():
@@ -42,7 +42,7 @@ def main():
         probe="""import importlib.util,strd,strd_verified
 from pathlib import Path
 from importlib.metadata import version
-assert version('strd-engine')==strd.__version__=='0.1.0'
+assert version('strd-engine')==strd.__version__=='0.2.0'
 assert all('site-packages' in Path(m.__file__).parts for m in (strd,strd_verified))
 assert not any(importlib.util.find_spec(p) for p in ('numpy','pandas','scipy','matplotlib','PySide6','app','applications'))
 print('Installed path/dependency isolation PASS')
@@ -56,6 +56,21 @@ print('Installed path/dependency isolation PASS')
         p=subprocess.run([str(python),'-I',str(root/'verification/ms2_reference_calculations.py')],cwd=temp,env=env,check=True,capture_output=True,text=True,encoding='utf-8')
         if len(json.loads(p.stdout))!=23:raise ValueError('Wrong worksheet count')
         print('Independent worksheet: 23 quantities PASS',flush=True)
+        p=subprocess.run([str(python),'-I',str(root/'verification/a2_reference_calculations.py')],cwd=temp,env=env,check=True,capture_output=True,text=True,encoding='utf-8')
+        if len(json.loads(p.stdout))!=2:raise ValueError('Wrong A2 worksheet count')
+        sample=json.loads((root/'examples/a2_member.json').read_text(encoding='utf-8'))
+        invalid=dict(sample, axial_kn=0)
+        failed=json.loads(json.dumps(sample));failed['cases'][0]['segments'][0]['moment_knm']=10000
+        incomplete=json.loads(json.dumps(sample));incomplete['cases'][0]['segments'][0]['cb']=6
+        for data,status,code in [(sample,'CHECKS_PASS',0),(failed,'CHECKS_FAIL',1),(invalid,'INVALID_INPUT',2),(incomplete,'INCOMPLETE',2)]:
+            p=subprocess.run([str(python),'-I','-m','strd.assessment','-'],input=json.dumps(data),cwd=temp,env=env,capture_output=True,text=True,encoding='utf-8')
+            result=json.loads(p.stdout)
+            if p.returncode!=code or result['status']!=status:raise ValueError('Wrong A2 CLI outcome')
+            json.dumps(result,allow_nan=False)
+        for malformed in ('{', '{"member_id":"B1","member_id":"B2"}'):
+            p=subprocess.run([str(python),'-I','-m','strd.assessment','-'],input=malformed,cwd=temp,env=env,capture_output=True,text=True,encoding='utf-8')
+            if p.returncode!=2 or json.loads(p.stdout)['status']!='INVALID_INPUT':raise ValueError('Malformed JSON accepted')
+        print('A2 independent worksheet: 2 sections; CLI: 6 status/exit/JSON checks PASS',flush=True)
     print('Installed distribution verification PASS',flush=True)
 
 if __name__=='__main__':main()
