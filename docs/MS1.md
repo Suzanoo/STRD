@@ -2,7 +2,7 @@
 
 ## Current acceptance record
 
-PO accepted MS-1 and reported macOS verification: 21 tests PASS, JSON smoke PASS, merged/pushed to main 4778e38458dac9ea7bf5d94bf2d4b749646350fb, working tree clean. This is accepted PO evidence, not a Work claim of native execution. MS-2 is separately authorized; see [MS-2](MS2.md). The original MS-1 API/envelope below remains unchanged. Historical MS-1 deferrals do not override the later MS-2 authorization.
+PO accepted MS-1 and reported macOS verification: 21 tests PASS, JSON smoke PASS, merged/pushed to main 4778e38458dac9ea7bf5d94bf2d4b749646350fb, working tree clean. This is accepted PO evidence, not a Work claim of native execution. MS-2 is now accepted; A1 is authorized. See [A1](A1.md) and [MS-2](MS2.md). The original MS-1 API/envelope below remains unchanged. Historical MS-1 deferrals do not override the later MS-2 authorization.
 
 ## Accepted Product Owner decisions
 

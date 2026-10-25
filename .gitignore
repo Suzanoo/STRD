@@ -144,3 +144,6 @@ cython_debug/
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Python
 __pycache__/
 *.py[cod]
+
+# A1 local verification environments
+.venv-a1*/

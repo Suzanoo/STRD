@@ -1,49 +1,39 @@
-# STRD — bounded steel strength checks
+# STRD — bounded steel strength engine
 
-The verified source package supports the book-based H450x200x9x14 fixture:
-major-axis bending with yielding/LTB, and unstiffened web shear, ASD/LRFD.
-MS-1 is accepted. MS-2 is implemented and submitted for review; MS-3 is not authorized.
-See [documentation](docs/README.md), [MS-2 applicability/API](docs/MS2.md),
-[reference evidence](docs/MS2_REFERENCE.md), and [setup/tests](docs/TESTING.md).
+MS0/MS1/MS2 accepted; A1 package migration submitted for PO review. A2 not authorized.
+One verified book fixture only: H450x200x9x14, Fy=245 MPa, E=200000 MPa.
+Supports continuous-bracing bending, major-axis bending/LTB, unstiffened web shear,
+ASD/LRFD and Cb arithmetic. PASS is conditional on the named check and caller assertions,
+not whole-member, bracing-system or production structural-design certification.
+No UI, project persistence, analysis, new materials or catalog expansion.
 
-From repository root, Python 3.10+ (standard library only):
+Read [documentation](docs/README.md), [A1](docs/A1.md), [API/envelope](docs/MS2.md),
+and [setup/testing](docs/TESTING.md). Python 3.10+ syntax, zero runtime dependencies.
+Actual Work runtime: Linux CPython 3.12.14; other runtimes need their own verification.
+
+Dependency-free source test entry:
 
 ```sh
-python -m unittest discover -s tests_verified -v
+python scripts/run_tests.py --source
+```
+
+After installing the wheel, from any directory:
+
+```python
+from strd import check_bending, check_flexure, check_web_shear, moment_gradient_factor
+```
+
+Existing strd_verified imports and the two commands remain compatible after installation:
+
+```sh
+python -m strd_verified
 python -m strd_verified.ms2_examples
-python verification/ms2_reference_calculations.py
 ```
 
-The accepted MS-1 API `check_bending` and `python -m strd_verified` remain unchanged.
-The new APIs are `check_flexure`, `check_web_shear` and `moment_gradient_factor`.
-One verified section/material record is supported, not the legacy catalog.
-PASS applies only to the specified individual check and asserted assumptions;
-no whole-member, bracing-system, current-code or production certification is implied.
-Analysis, combined actions, UI and project Save/Open remain excluded.
+The src layout requires installation for normal imports. Typed request/result definitions
+are in strd.domain.contracts; runtime validation remains authoritative. Fixed example
+records are not a manufacturer catalog. Do not bypass public applicability gates.
 
-## Legacy reference (unverified outside explicit proof)
-
-Original scripts/catalogs remain unchanged; known defects are documented in MS-0. The historical installation instructions below apply to legacy work, NOT the verified source-tree package. Installing dependencies does not verify legacy calculations.
-
-### Tools
-
-1. Install Python, Git, Anaconda
-
-- [Python](https://www.python.org/downloads/)
-- [Git](https://github.com/git-guides/install-git)
-- [Anaconda](https://docs.anaconda.com/anaconda/install/index.html)
-
-2. Create project folder
-3. Clone this Repository
-4. Create Conda env then activate it
-5. Install dependency
-6. Enjoy
-
-```
-mkdir dev
-cd dev
-git clone https://github.com/Suzanoo/STRD.git
-conda create --name <Conda env name> python=3.10
-conda activate <Conda env name>
-python setup.py install
-```
+Legacy code/catalogs/setup are [archived](archive/legacy/README.md), excluded from the
+wheel, not certified by these tests. The existing alignment-chart image is unchanged
+and excluded. No source book, public release or new license grant is supplied.

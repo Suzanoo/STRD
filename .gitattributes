@@ -1,0 +1,2 @@
+# Preserve archived evidence bytes across checkout platforms.
+archive/legacy/** -text

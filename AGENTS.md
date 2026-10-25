@@ -1,7 +1,18 @@
 # STRD engineering authority
 
-Read docs/README.md first, then docs/COLLABORATION.md and its three governing contracts, the authorized milestone, accepted notes, reference evidence, relevant source and tests.
+Read docs/README.md, docs/COLLABORATION.md and its three pinned governing contracts,
+then the authorized milestone, accepted evidence, relevant source and tests.
+Work is Engineer/Architect/Investigator. PO owns decisions and acceptance.
+Coordinator manages review and separately authorized Git integration. Work performs
+no Git operations or GitHub writes; never access or alter Legacy Stashes.
+Deliver complete changed files, manifest, actual verification and a standalone .txt
+handoff separate from the implementation ZIP.
 
-Work is Engineer/Architect/Investigator. PO owns decisions and acceptance. Coordinator manages review and explicitly authorized integration. Work must not perform Git operations. Deliver complete changed files and a .txt handoff. PO accepted MS-1 and authorized MS-2 only on 2026-10-24. Read docs/MS2.md for the current envelope. MS-3 is not authorized. Never touch preserved Legacy Stashes.
-
-Preserve legacy engineering reference. Only strd_verified contains the bounded MS-1/MS-2 checks; legacy app/, applications/, tools/, analysis/ and CSV files are not certified by its tests. Do not silently broaden the calculation envelope or mark unperformed checks as passed. Never repair a formula by matching only a rounded final answer.
+PO accepted MS0/MS1/MS2 and architecture direction D1, and authorized A1 only.
+A1 is submitted, not yet accepted. Read docs/A1.md. No A2, UI, project persistence,
+new section/material or engineering capability is authorized. Desktop/Web remains open.
+PO permits justified restructuring; the investigation is evidence, not a mandatory design.
+Canonical engine: src/strd; compatibility: src/strd_verified; legacy: archive/legacy.
+Preserve accepted behavior, independent evidence and explicit unsupported/not_checked.
+Never repair formulas merely to match rounded final answers. Use docs/TESTING.md;
+source tests, installed verification, native acceptance and PO acceptance are distinct.

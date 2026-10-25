@@ -4,10 +4,10 @@ The MS-1 record is extended, not replaced. Values are the stated book inputs;
 see docs/MS2_REFERENCE.md for property-by-property provenance and rounding.
 """
 from dataclasses import dataclass
-from .reference import ReferenceSection, MATERIAL, SOURCE_SHA256
+from .ms1 import ReferenceSection, MATERIAL, SOURCE_SHA256
 
-BASIS_ID = "DPT-STEEL-MANUAL-ISBN9789744585974-H-BENDING-SHEAR-v1"
-CALCULATOR_VERSION = "MS2-1"
+from strd.engineering.dpt.basis import (MS2_BASIS_ID as BASIS_ID,
+    MS2_CALCULATOR_VERSION as CALCULATOR_VERSION)
 
 
 @dataclass(frozen=True)

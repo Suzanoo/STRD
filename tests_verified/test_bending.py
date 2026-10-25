@@ -177,7 +177,7 @@ class BendingProofTests(unittest.TestCase):
 
     def test_reused_legacy_yield_arithmetic_is_verified_in_isolation(self):
         # Reuse-first evidence: extract only the legacy class; no numpy needed.
-        path = Path(__file__).resolve().parents[1] / "applications/flexural.py"
+        path = Path(__file__).resolve().parents[1] / "archive/legacy/applications/flexural.py"
         tree = ast.parse(path.read_text(encoding="utf-8"))
         cls = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == "Yeild")
         namespace = {}

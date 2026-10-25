@@ -3,13 +3,15 @@
 No UI, filesystem, legacy imports or load-analysis side effects.
 All reported capacities are conditional on the explicitly supplied assumptions.
 """
+from strd.domain.properties import HSection, ReferenceSection, ReferenceMaterial
+from strd.domain.contracts import StrengthResult
 
 import math
 from dataclasses import asdict
 
-from .reference import (
-    BASIS_ID, CALCULATOR_VERSION, SOURCE_SHA256, SECTION, MATERIAL, PHI_B, OMEGA_B,
-)
+from strd.domain.validation import _number
+from .basis import (MS1_BASIS_ID as BASIS_ID,
+    MS1_CALCULATOR_VERSION as CALCULATOR_VERSION, SOURCE_SHA256, PHI_B, OMEGA_B)
 
 _REQUIRED = frozenset({
     "basis_id", "section_id", "material_id", "method", "moment_knm",
@@ -34,30 +36,20 @@ def _result(status, message, **details):
     }
 
 
-def _number(value):
-    # bool is an int in Python, but is not an engineering scalar input.
-    if type(value) not in (int, float):
-        return False
-    try:
-        return math.isfinite(value)
-    except (OverflowError, ValueError):
-        return False
-
-
-def _reference_valid():
-    values = [v for k, v in asdict(SECTION).items() if k != "section_id"]
-    values += [MATERIAL.fy_mpa, MATERIAL.elastic_modulus_mpa, PHI_B, OMEGA_B]
+def _reference_valid(section, material):
+    values = [v for k, v in asdict(section).items() if k != "section_id"]
+    values += [material.fy_mpa, material.elastic_modulus_mpa, PHI_B, OMEGA_B]
     if not all(_number(v) and v > 0 for v in values):
         return False
     return (
-        SECTION.web_mm < SECTION.width_mm
-        and SECTION.depth_mm > 2 * (SECTION.flange_mm + SECTION.root_radius_mm)
+        section.web_mm < section.width_mm
+        and section.depth_mm > 2 * (section.flange_mm + section.root_radius_mm)
         and 0 < PHI_B <= 1 <= OMEGA_B
-        and MATERIAL.fy_mpa < MATERIAL.elastic_modulus_mpa
+        and material.fy_mpa < material.elastic_modulus_mpa
     )
 
 
-def check_bending(request):
+def _check_bending(request: object, section: ReferenceSection, material: ReferenceMaterial) -> StrengthResult:
     """Return a fresh JSON-compatible result; never read console input.
 
     Request must contain exactly the documented fields. Moment is a nonnegative
@@ -89,27 +81,27 @@ def check_bending(request):
     if not math.isfinite(demand_nmm):
         return _result("INVALID_INPUT", "Moment overflows the internal unit conversion.")
     supported = {
-        "basis_id": (BASIS_ID,), "section_id": (SECTION.section_id,),
-        "material_id": (MATERIAL.material_id,), "method": ("ASD", "LRFD"),
+        "basis_id": (BASIS_ID,), "section_id": (section.section_id,),
+        "material_id": (material.material_id,), "method": ("ASD", "LRFD"),
     }
     for key, allowed in supported.items():
         if request[key] not in allowed:
             return _result("UNSUPPORTED", f"Unsupported {key}; see the MS-1 scope.")
     if not all(request[key] for key in _FLAGS):
         return _result("UNSUPPORTED", "Requires continuous bracing, support twist restraint and major-axis-only loading.")
-    if not _reference_valid():
+    if not _reference_valid(section, material):
         return _result("INVALID_INPUT", "Internal reference data failed integrity validation.")
 
-    flange_ratio = SECTION.width_mm / (2 * SECTION.flange_mm)
-    web_clear_mm = SECTION.depth_mm - 2 * (SECTION.flange_mm + SECTION.root_radius_mm)
-    web_ratio = web_clear_mm / SECTION.web_mm
-    modulus_ratio = MATERIAL.elastic_modulus_mpa / MATERIAL.fy_mpa
+    flange_ratio = section.width_mm / (2 * section.flange_mm)
+    web_clear_mm = section.depth_mm - 2 * (section.flange_mm + section.root_radius_mm)
+    web_ratio = web_clear_mm / section.web_mm
+    modulus_ratio = material.elastic_modulus_mpa / material.fy_mpa
     flange_limit = 0.38 * math.sqrt(modulus_ratio)
     web_limit = 3.76 * math.sqrt(modulus_ratio)
     if flange_ratio > flange_limit or web_ratio > web_limit:
         return _result("UNSUPPORTED", "Proof is limited to compact flange and web.")
 
-    nominal_nmm = MATERIAL.fy_mpa * SECTION.plastic_modulus_x_mm3
+    nominal_nmm = material.fy_mpa * section.plastic_modulus_x_mm3
     lrfd_nmm = PHI_B * nominal_nmm
     asd_nmm = nominal_nmm / OMEGA_B
     capacity_nmm = lrfd_nmm if request["method"] == "LRFD" else asd_nmm
@@ -119,7 +111,7 @@ def check_bending(request):
         status, "Supported bending check passed." if status == "PASS" else "Bending demand exceeds the supported capacity.",
         inputs=dict(request),
         reference={
-            "section": asdict(SECTION), "material": asdict(MATERIAL),
+            "section": asdict(section), "material": asdict(material),
             "source_sha256": SOURCE_SHA256,
             "printed_pages": [28, 29, 74, 90, 91],
             "clauses": ["2.4 / Table 1(b)", "5.1", "5.2.1 Eq.(10)", "Example 10.3.1"],
@@ -131,7 +123,7 @@ def check_bending(request):
             "web_width_thickness": web_ratio,
             "web_compact_limit": web_limit,
             "flange_class": "COMPACT", "web_class": "COMPACT",
-            "plastic_modulus_x_mm3": SECTION.plastic_modulus_x_mm3,
+            "plastic_modulus_x_mm3": section.plastic_modulus_x_mm3,
             "nominal_moment_nmm": nominal_nmm,
             "phi_b": PHI_B, "omega_b": OMEGA_B,
             "lrfd_capacity_nmm": lrfd_nmm, "asd_capacity_nmm": asd_nmm,

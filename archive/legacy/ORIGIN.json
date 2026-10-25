@@ -1,0 +1,276 @@
+{
+  "repository": "Suzanoo/STRD",
+  "baseline": "8cee711c0d16584eb811dfaaf96af4a4ed530f72",
+  "files": [
+    {
+      "source": "README.md",
+      "destination": "archive/legacy/README.original.md",
+      "git_blob_sha": "5e9839716ffdeafa71ef2d28e7ae8369688b8d2b",
+      "sha256": "bbcd5913b72778ac4202a2e6e245db85571548f753ac6d5c6e9940a276810d20"
+    },
+    {
+      "source": "analysis/beam_analysis.py",
+      "destination": "archive/legacy/analysis/beam_analysis.py",
+      "git_blob_sha": "e682c1b7c1951773176b039738ac30c2f059f06d",
+      "sha256": "d04756210be613baca5cab80c9967c5f65bcc9af8b81b8d2801d9bd52d44f701"
+    },
+    {
+      "source": "analysis/plot.py",
+      "destination": "archive/legacy/analysis/plot.py",
+      "git_blob_sha": "9c7481fe511405a2f98a2ceabacf7908fd839332",
+      "sha256": "544797d564a505f86981a003b14410c0cee06564584e31073121a2cf8c673283"
+    },
+    {
+      "source": "app/base_plate.py",
+      "destination": "archive/legacy/app/base_plate.py",
+      "git_blob_sha": "9f75711d29926a77885c25ed674e9854655ab84d",
+      "sha256": "9c401b76f5064ede49bf82b8ddc73c49d435e6c1da1797f227875ed180b02faa"
+    },
+    {
+      "source": "app/bolt.py",
+      "destination": "archive/legacy/app/bolt.py",
+      "git_blob_sha": "19892f159468ce751f6c171f056b2028a7f0281a",
+      "sha256": "a8e66303f07abfa693e94f6cc74ee139637387a777ed7876fda100385e4d56e2"
+    },
+    {
+      "source": "app/channel.py",
+      "destination": "archive/legacy/app/channel.py",
+      "git_blob_sha": "ad62281f17c35568a120d373ff4e91c6e185cf5a",
+      "sha256": "7b35984395e03331cac9dad6559721689fb1818716e93aa7e2dc4724755947b6"
+    },
+    {
+      "source": "app/h_beam.py",
+      "destination": "archive/legacy/app/h_beam.py",
+      "git_blob_sha": "11b5cb439108db2817062a52a7b3051d376ad5c4",
+      "sha256": "fd8cc98f7dbbb20dcda12be9879ce8ab5e4fdee5719ddd0c5cfcd46db016b1e6"
+    },
+    {
+      "source": "app/h_column.py",
+      "destination": "archive/legacy/app/h_column.py",
+      "git_blob_sha": "bc61b69354de47f627375a96ac41b4adaab192e8",
+      "sha256": "a7bdfc11eac324d9be8653dbcda924bfaf061fdef0588fd5c8e1acfedc712645"
+    },
+    {
+      "source": "app/hip.py",
+      "destination": "archive/legacy/app/hip.py",
+      "git_blob_sha": "2714c768b9a2175ca88cfde810b946377f234431",
+      "sha256": "90cdee68575ad896a5b9eb3d5efcd979341bd7e3cdef2c41deefa4fd0109b56b"
+    },
+    {
+      "source": "app/pipe.py",
+      "destination": "archive/legacy/app/pipe.py",
+      "git_blob_sha": "0e14340f12f3a0592998f7d8ece41ec88b09d1a0",
+      "sha256": "94ebffd0d8a2650942b7df12cfc0314dacb1a0996d94a5cfc1f2a8413dd6f217"
+    },
+    {
+      "source": "app/purin.py",
+      "destination": "archive/legacy/app/purin.py",
+      "git_blob_sha": "1bb97b36fd4e405b005b6bc5ec550ee5c578c910",
+      "sha256": "2c9bdd20cddfb4780910364a81888c79f8a87b224aa0ccd7af3f8aee41c62c04"
+    },
+    {
+      "source": "app/purin_lrfd.py",
+      "destination": "archive/legacy/app/purin_lrfd.py",
+      "git_blob_sha": "11ee262769e52b923fc46748136f131c417b6938",
+      "sha256": "537100edaa2f75ab232f2db4cd81f1a4ff3c594852818b3be3bbbd32262e92d2"
+    },
+    {
+      "source": "app/rafter.py",
+      "destination": "archive/legacy/app/rafter.py",
+      "git_blob_sha": "277c7d5f07b2fff2c176df1efe3e3861cabd5bac",
+      "sha256": "5909a8a8af1b1070fbdf12f3f62fbbeae4ef7820430817fd603457987401d7b8"
+    },
+    {
+      "source": "app/rafter_lrfd.py",
+      "destination": "archive/legacy/app/rafter_lrfd.py",
+      "git_blob_sha": "5c40e1a48bc92df09524c6b0a65da4060278e60f",
+      "sha256": "4d47e35027e81af5932448f5d3d2da096c3027202fc5998ee5bbe772bdbcb0b0"
+    },
+    {
+      "source": "app/rect_tube.py",
+      "destination": "archive/legacy/app/rect_tube.py",
+      "git_blob_sha": "d4dcb3f8045c2c4e2120055d4bdcbf3d62d4a3e9",
+      "sha256": "7151be517ee9a4ed57e1bd1bd1fc4be81b04fe3e8bedbe6d2f28428564942ed1"
+    },
+    {
+      "source": "app/relative_stiffness.py",
+      "destination": "archive/legacy/app/relative_stiffness.py",
+      "git_blob_sha": "8aa2092331926c7d867e4769abfbd44e18425379",
+      "sha256": "82c55105a6ac48510516b19fd2b791c0cde7d314ce9b7da9222457821ef62adc"
+    },
+    {
+      "source": "app/ridge.py",
+      "destination": "archive/legacy/app/ridge.py",
+      "git_blob_sha": "9b89fd14fc3a5fc9e367a8f3bb650d79c65704af",
+      "sha256": "8dac3c08cf4e3a755598d2a2c29e9ae21669669aa7cad8caac6d285b599c5d8c"
+    },
+    {
+      "source": "app/sag_rod.py",
+      "destination": "archive/legacy/app/sag_rod.py",
+      "git_blob_sha": "22007166c9da115933672e543609a30f60ef9dc4",
+      "sha256": "e48cf69fb962fa7ad27bad8d78e762a6c97b3f50e31e48bf7e1bf46e4cd8ddd5"
+    },
+    {
+      "source": "app/section_generator.py",
+      "destination": "archive/legacy/app/section_generator.py",
+      "git_blob_sha": "f1887a13e9a5037d7faab889a03ce4d941166cf0",
+      "sha256": "8d627408c911125b3a2b83db8146bd07490c0053c330304f8d7549dca18974bb"
+    },
+    {
+      "source": "app/square_tube.py",
+      "destination": "archive/legacy/app/square_tube.py",
+      "git_blob_sha": "2024ef1f391b05ea6d398fc59aadf8b20c5a7c19",
+      "sha256": "f9d797dea7f8f1774cb7f750ecb96ce5d23cbbb1e50a56359464c03f97348ccb"
+    },
+    {
+      "source": "app/utils.py",
+      "destination": "archive/legacy/app/utils.py",
+      "git_blob_sha": "529c2c57e2057702147594b86c613f9f3b457d06",
+      "sha256": "27e0312c115ba7b8d613e086f15a4d6a63b7b74b60334976eccea7beacbf28e5"
+    },
+    {
+      "source": "applications/compression.py",
+      "destination": "archive/legacy/applications/compression.py",
+      "git_blob_sha": "01739c61d54b08d219c38a3414e555cbbeb454e3",
+      "sha256": "0d9e493cd3d684c242576374e00e80f8a587a113d8f50fab907db4193fb3cea9"
+    },
+    {
+      "source": "applications/flexural.py",
+      "destination": "archive/legacy/applications/flexural.py",
+      "git_blob_sha": "e022584fd01f3bae7d66cc55bf9efefbec0496a2",
+      "sha256": "8d88c77c07e6595f13b991ecd69fc7c67e9a31c44db05660c336725ff123d039"
+    },
+    {
+      "source": "applications/interaction.py",
+      "destination": "archive/legacy/applications/interaction.py",
+      "git_blob_sha": "6052d1f9605f329710dc2c9767077b7728f75720",
+      "sha256": "3dce6eb93c49aba1fe891c4be6079c71307055bb598c3857e8ddffff9cf2eca4"
+    },
+    {
+      "source": "applications/pipe_section.py",
+      "destination": "archive/legacy/applications/pipe_section.py",
+      "git_blob_sha": "97987449b0e2f5e31f293431facc3751cc5f5c8b",
+      "sha256": "25333d66debc4eda79bd15926a6cfbfe48b8b2392defce29e7e38e50125ddec4"
+    },
+    {
+      "source": "applications/tube_section.py",
+      "destination": "archive/legacy/applications/tube_section.py",
+      "git_blob_sha": "d1bb58870e1791fdafc7203a275f43458910a05c",
+      "sha256": "16a16b724dc1255fafad5247756059f71ffc15cd9a4167eca7cb9e3691cfcb6e"
+    },
+    {
+      "source": "data/sections/Channels.csv",
+      "destination": "archive/legacy/data/sections/Channels.csv",
+      "git_blob_sha": "ca5190c54cab2348667bdbd0e8735e82a45fb4b6",
+      "sha256": "d07256a5804d09b90039f54b6e42e52b30eb909faa3712fc11537fb63b4a32d5"
+    },
+    {
+      "source": "data/sections/Deform_Bar.csv",
+      "destination": "archive/legacy/data/sections/Deform_Bar.csv",
+      "git_blob_sha": "adfd4f5f4f4e69a4ae5ae870c02a21d4e92baea8",
+      "sha256": "ac2df188a575e73560d36f74cbd3d06eaba67d4278ebd45344e9eb380cab6093"
+    },
+    {
+      "source": "data/sections/Double-Channel.csv",
+      "destination": "archive/legacy/data/sections/Double-Channel.csv",
+      "git_blob_sha": "04184b254582f3b6f1a12155b04b5f92379a312a",
+      "sha256": "5cb77a91295246a75c949405952bf90fd7fe04821331a616411aee55fefc1261"
+    },
+    {
+      "source": "data/sections/Double-Equal_Angles.csv",
+      "destination": "archive/legacy/data/sections/Double-Equal_Angles.csv",
+      "git_blob_sha": "d9e4aaf1c44887ee930768152e78c2758bbb525b",
+      "sha256": "8d2fbd096c704bea47f5baf21a1abf2ad66f9835c3bb5605064dd9a74ae1b7a3"
+    },
+    {
+      "source": "data/sections/Double_Channel.csv",
+      "destination": "archive/legacy/data/sections/Double_Channel.csv",
+      "git_blob_sha": "04184b254582f3b6f1a12155b04b5f92379a312a",
+      "sha256": "5cb77a91295246a75c949405952bf90fd7fe04821331a616411aee55fefc1261"
+    },
+    {
+      "source": "data/sections/Double_Equal_Angles.csv",
+      "destination": "archive/legacy/data/sections/Double_Equal_Angles.csv",
+      "git_blob_sha": "d9e4aaf1c44887ee930768152e78c2758bbb525b",
+      "sha256": "8d2fbd096c704bea47f5baf21a1abf2ad66f9835c3bb5605064dd9a74ae1b7a3"
+    },
+    {
+      "source": "data/sections/Double_Light_Lip_Channel.csv",
+      "destination": "archive/legacy/data/sections/Double_Light_Lip_Channel.csv",
+      "git_blob_sha": "f932820e8a0bf1b652de67f19cf907519b54df21",
+      "sha256": "9b4c82b050d2306fa5c0f90412604ad02dc2ab0717f48fbd36e026eb1b7dd42f"
+    },
+    {
+      "source": "data/sections/Equal_Angles.csv",
+      "destination": "archive/legacy/data/sections/Equal_Angles.csv",
+      "git_blob_sha": "c73ec6f97d0d93df2af8473d34bfc6054054ae81",
+      "sha256": "c270b34d644c015b41c500f80bb8cc45ed87c76ed9947710152dd7438fb0e74b"
+    },
+    {
+      "source": "data/sections/H-Sections.csv",
+      "destination": "archive/legacy/data/sections/H-Sections.csv",
+      "git_blob_sha": "ec796132dc246ad6b6a1d2c8a87712772dd7861b",
+      "sha256": "dc29ab7ec15ab9d3682fc44cc6bd80b17f3fa9b8a058007bc4820e8ef017d276"
+    },
+    {
+      "source": "data/sections/Light_Lip_Channel.csv",
+      "destination": "archive/legacy/data/sections/Light_Lip_Channel.csv",
+      "git_blob_sha": "40f67eb62ee91f04a9004c69830ad28acc02ca11",
+      "sha256": "05e82cf93b4976191ad8d09d3b725bab0aa0f0d9a5f343c51d0331b6cebad7e2"
+    },
+    {
+      "source": "data/sections/Pipe.csv",
+      "destination": "archive/legacy/data/sections/Pipe.csv",
+      "git_blob_sha": "602b108543838d64dd30b8378bf0b0716c977274",
+      "sha256": "40c89a933ad93bca2631a02bba5da96b7317b379da2ffe4bca068f02da0788af"
+    },
+    {
+      "source": "data/sections/Rectangular_Tube.csv",
+      "destination": "archive/legacy/data/sections/Rectangular_Tube.csv",
+      "git_blob_sha": "3cea09eb284175499a1477a58a47ab0c818adf21",
+      "sha256": "aff1e63f4443d733725b64d9bfd18c27298dbee5df91ae61b0c5e7bb340a7c23"
+    },
+    {
+      "source": "data/sections/Square_Tube.csv",
+      "destination": "archive/legacy/data/sections/Square_Tube.csv",
+      "git_blob_sha": "16f0ca68168cc09c735d9185e4310f9a20b00977",
+      "sha256": "a9d8d202859521d441db833de6d568fb2e16dd5c9fc56449bcb1f6e05ae444cd"
+    },
+    {
+      "source": "data/sections/Z.csv",
+      "destination": "archive/legacy/data/sections/Z.csv",
+      "git_blob_sha": "7a14ed37edebd382a7b68541acba10443079e99f",
+      "sha256": "1c1b3ea12d941eabfddce3f0c386f0c49b4db7b5cd9cec5d37f1af9b5332a463"
+    },
+    {
+      "source": "setup.py",
+      "destination": "archive/legacy/setup.py",
+      "git_blob_sha": "bc498bae22b65b6277561f5eadd6bb64240e1bff",
+      "sha256": "4a973dabdec89d603504c18686ddb6ea6456af7127f3e72db931db3e1894d6fc"
+    },
+    {
+      "source": "tools/section_modulus.py",
+      "destination": "archive/legacy/tools/section_modulus.py",
+      "git_blob_sha": "7e82fa2fc3b5f0ef97efb2bbc73b3104750d55a1",
+      "sha256": "c0c6eb8a2cc42fff19a3cb8b773697edf629bf71565d33cb58bbbd8eda8037e3"
+    },
+    {
+      "source": "tools/section_properties.py",
+      "destination": "archive/legacy/tools/section_properties.py",
+      "git_blob_sha": "93967037b99ab9d22149c0c3175696accccd6485",
+      "sha256": "07336a30da770c1f9d47fa1a0380595ca07de59738be2fa8c2870cc5cb063f29"
+    },
+    {
+      "source": "tools/torsion_props.py",
+      "destination": "archive/legacy/tools/torsion_props.py",
+      "git_blob_sha": "caa516522668b3b0365ed3960f0b1d2b14e5720b",
+      "sha256": "26a93b531be2419f230db4a445e3c2a13d8ac0352f40bd57aa390e26565cb38c"
+    },
+    {
+      "source": "tools/width_thickness_ratio.py",
+      "destination": "archive/legacy/tools/width_thickness_ratio.py",
+      "git_blob_sha": "d85d2ffcfe375aa655431b8267eb17f57ea4c594",
+      "sha256": "9763929d7191808e0660629f9dd2ff3f2d66f87a5cf501944e365242d099697e"
+    }
+  ]
+}

@@ -2,11 +2,14 @@
 
 ## Authority and status
 
-PO accepted MS-1, including 21 automated tests and JSON smoke on macOS, and authorized MS-2 only on 2026-10-24. Accepted and remotely verified baseline: `main @ 4778e38458dac9ea7bf5d94bf2d4b749646350fb`. The working tree was clean at PO acceptance (PO evidence). Work uses a source snapshot, performs no Git operations and never accesses Legacy Stashes. MS-2 implementation is submitted for Coordinator review and PO acceptance; it is not yet accepted. MS-3 is not authorized. Desktop/Web remains undecided.
+PO accepted MS2 before A1. Accepted main: `8cee711c0d16584eb811dfaaf96af4a4ed530f72`.
+The engineering contracts below remain unchanged. A1 changes packaging/ownership;
+see [A1](A1.md) and [Testing](TESTING.md). A1 acceptance is pending; A2 not authorized.
+Desktop/Web remains undecided. No Work Git writes or Legacy Stash access.
 
 ## Engineering choice and supported envelope
 
-Extend `strd_verified` with two pure, independent strength checks and a moment-gradient helper. Preserve `check_bending`, its data, its smoke command and all 21 original tests. Standard library only, source-tree execution; no framework, UI or installation redesign.
+Extend `strd_verified` with two pure, independent strength checks and a moment-gradient helper. Preserve `check_bending`, its data, its smoke command and all 21 original tests. Historical MS2 used standard-library source-tree execution. A1 adds packaging without changing this envelope.
 
 The public MS-2 APIs accept **one verified section/material fixture**: rolled, doubly symmetric H450x200x9x14, with the supplied book's Fy=245 MPa and E=200000 MPa. This is the same section in Examples 10.3.1, 10.3.2 and 10.4.1. Lb, Cb and demand are variable; capacities are not hard-coded example answers. No other section or material IDs, property overrides, legacy CSV data or arbitrary catalogs are accepted. [Reference evidence](MS2_REFERENCE.md) records every property and its precision.
 
@@ -18,7 +21,7 @@ This bounded data decision avoids enlarging the catalog without evidence. It is 
 
 ## Public API
 
-Import `check_flexure`, `check_web_shear`, `moment_gradient_factor` from `strd_verified`. Each accepts one plain dictionary and returns a fresh JSON-compatible dictionary. There is no console/file/network I/O. Complete runnable examples: `strd_verified/ms2_examples.py` and `python -m strd_verified.ms2_examples`.
+Import `check_flexure`, `check_web_shear`, `moment_gradient_factor` from `strd_verified`. Each accepts one plain dictionary and returns a fresh JSON-compatible dictionary. There is no console/file/network I/O. Complete runnable examples: `src/strd_verified/ms2_examples.py` and `python -m strd_verified.ms2_examples`.
 
 All fields below are required; unknown extra fields are rejected. No implicit load combinations, unit guesses, type coercion or engineering defaults.
 
@@ -78,6 +81,8 @@ Reuse the MS-1 immutable geometry/material record and strict scalar validator; e
 
 Legacy `LTB.hc_major` equations were inspected. Its below-Lp uninitialized Mn failure is reproduced by isolated AST test, then the new independent path is checked. Its mixed nominal-moment units and boundary routing are not imported. The new kernel uses N-mm consistently and covers exact boundaries. Legacy Cb arithmetic is the Eq.(9) candidate, re-expressed with validation/overflow protection. Legacy files themselves are unchanged; their defects and behavior are not declared repaired or certified. No dependency on numpy/pandas/setup.py is introduced.
 
-## Remaining gates
+## Current acceptance gate
 
-Coordinator reviews evidence and bounded applicability; PO accepts/revises MS-2. PO controls application of the files and Git integration. No additional product/design-basis decision blocks this delivery. Expanding the section catalog, platform selection, production-code certification and MS-3 remain outside this authorization. Automated evidence is not native Desktop acceptance.
+MS2 is accepted. A1 package migration is now submitted for PO/Coordinator review.
+Additional catalogs, platform/UI and engineering capabilities remain outside A1.
+Automated tests are not native Desktop acceptance.

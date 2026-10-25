@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools==84.1.0", "wheel==0.48.0", "packaging==26.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "strd-engine"
+version = "0.1.0"
+description = "Bounded book-based H-section strength checks"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["strd", "strd.*", "strd_verified"]
+namespaces = false
+
+[tool.setuptools.package-data]
+strd = ["py.typed"]

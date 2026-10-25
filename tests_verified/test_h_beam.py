@@ -283,7 +283,7 @@ class HBeamTests(unittest.TestCase):
         self.assertIn('major-axis bending/LTB',check_web_shear(shear())['not_checked'])
 
     def test_legacy_short_lb_defect_and_verified_replacement(self):
-        path=Path(__file__).resolve().parents[1]/'applications/flexural.py'
+        path=Path(__file__).resolve().parents[1]/'archive/legacy/applications/flexural.py'
         tree=ast.parse(path.read_text(encoding='utf-8'))
         cls=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='LTB')
         scope={'np':SimpleNamespace(sqrt=math.sqrt,pi=math.pi)}
