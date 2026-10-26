@@ -52,6 +52,7 @@ class MemberSession:
                     cb_source='CONSERVATIVE', cb_reference='Cb=1 conservative assumption')
 
     def add_segment(self):
+        while 'S'+str(self._next_segment) in {s['segment_id'] for s in self.draft['segments']}: self._next_segment += 1
         sid = 'S' + str(self._next_segment); self._next_segment += 1
         start = self.draft['segments'][-1]['end_mm'] if self.draft['segments'] else '0'
         self.draft['segments'].append(dict(segment_id=sid, start_mm=start, end_mm='', continuous_restraint=False))
@@ -65,6 +66,7 @@ class MemberSession:
         self.invalidate()
 
     def add_case(self):
+        while 'C'+str(self._next_case) in {c['case_id'] for c in self.draft['cases']}: self._next_case += 1
         cid = 'C' + str(self._next_case); self._next_case += 1
         self.draft['cases'].append(dict(case_id=cid, method='ASD', action_source='',
             segments=[self._action(s['segment_id']) for s in self.draft['segments']]))

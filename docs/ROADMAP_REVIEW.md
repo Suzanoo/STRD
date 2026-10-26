@@ -1,9 +1,19 @@
+Current status (2026-10-26): P1 and contract alignment are PO accepted at
+main 34022debc3ca956804d59550d98ac04a51763e52, tag p1-accepted. P2 alone is authorized;
+P2 implementation is submitted for review. P3 remains unauthorized. Historical statements
+below describe earlier delivery-time status and do not override current PO decisions.
+
 # Roadmap review after A2 — recommendations, not implementation authorization
 
-Current status: A2 is PO accepted at d232274 (a2-accepted). P1 and contract alignment
+Historical P1-delivery status: A2 is PO accepted at d232274 (a2-accepted). P1 and contract alignment
 are authorized; PO selected Desktop/macOS. See P1.md. The following historical
 A2 delivery/roadmap evidence retains its original statements; no P2 is authorized.
 
+
+## Historical A2 roadmap proposal (delivery-time status)
+
+The scope table remains roadmap context. Old authorization and decision requests below
+record that delivery date; current P2 authority is stated above and in P2.md.
 
 Accepted history: MS0/MS1/MS2 and A1. A2 is currently submitted for review.
 Prior investigation proposed A1 -> A2 -> P1 -> P2 -> P3, then selective extensions.

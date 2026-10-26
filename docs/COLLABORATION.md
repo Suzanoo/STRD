@@ -25,4 +25,4 @@ under explicit authorization. Acceptance alone does not authorize integration/ta
 Deliver complete changed files, baseline/manifest, exact commands and actual evidence;
 engineering and contract-alignment .txt reports are separate from the implementation ZIP.
 Implementation, automated checks, native runtime checks and PO acceptance are distinct.
-Stop at the authorized milestone. See P1.md for current scope and remaining gates.
+Stop at the authorized milestone. See P2.md for current scope and remaining gates.

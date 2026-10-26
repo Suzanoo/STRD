@@ -5,7 +5,7 @@ import sys
 def main():
     try:
         import tkinter as tk
-        from .ui import StrengthApp
+        from .project_ui import ProjectApp
         root = tk.Tk()
     except (ImportError, RuntimeError) as exc:
         print('STRD cannot start Tk. Use a Python installation with Tcl/Tk support.\n' + str(exc), file=sys.stderr)
@@ -14,7 +14,7 @@ def main():
         # TclError when no display is available: fail visibly, never a silent launch.
         print('STRD could not open a desktop window.\n' + str(exc), file=sys.stderr)
         return 2
-    StrengthApp(root)
+    ProjectApp(root)
     root.mainloop()
     return 0
 

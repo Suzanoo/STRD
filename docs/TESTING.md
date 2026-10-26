@@ -1,4 +1,59 @@
-# Current P1 verification
+# Current P2 verification
+
+P1 and contracts accepted at 34022de; native P1 acceptance is not reopened.
+P2 regression runs preserve accepted behavior and add project safety evidence.
+
+```sh
+python3 scripts/run_tests.py --source
+python3 scripts/run_gui_tests.py --source
+python3 scripts/verify_distribution.py /PATH/strd_engine-0.4.0-py3-none-any.whl --gui
+```
+
+P2 totals after macOS portability correction: 115 headless methods (87 accepted +28 project), 25 real Tk methods
+(12 accepted +13 project). Final actual totals are in the separate handoff and logs.
+Installed verification uses a clean offline venv outside source and runs the same suites.
+Without --gui, distribution checks remain headless. No display/Tk returns NOT EXECUTED
+and nonzero, not a passing skip. macOS is the pilot; POSIX locking is required for saves.
+
+Tests include exact draft roundtrip, no persisted results, catalog/version rejection,
+corrupt/malformed input, real two-process saves and abrupt exits, write/fsync/replace
+faults and post-commit uncertainty, Unicode paths, recovery and UI cancel/failure paths.
+GUI dialogs use controlled replies; native macOS dialog/filesystem acceptance is P2.md.
+
+Build with requirements-build.txt, then from repository root:
+
+```sh
+python -m pip wheel --no-deps --no-build-isolation --no-index --wheel-dir dist .
+python -c "from setuptools.build_meta import build_sdist; build_sdist('dist')"
+```
+
+Example: examples/p2_two_members.strd. A2 JSON example/CLI remains supported separately;
+it is not a P2 project file. No legacy dependency installation required.
+
+## P2 macOS path-alias verification correction (2026-10-26)
+
+PO evidence: macOS Python 3.12.2 / Tk8.6.13 aqua, original source112 tests with two
+failures; GUI25 tests all PASS. That native GUI result remains accepted evidence.
+The failures compared lexical temporary paths with canonical paths: the primary-replace
+injection missed its target, and Save As expected the uncanonicalized spelling.
+Tests now identify the canonical target independently and verify actual primary injection,
+backup bytes, original bytes, unchanged save token and dirty state. Alias regressions cover
+shared locking, stale writers, recovery and two real processes using different spellings.
+Production code, schema, wheel0.4.0 and GUI are unchanged. No assertion is skipped.
+
+Minimal native re-verification from the already-corrected P2 repository:
+
+```sh
+.venv-p1/bin/python scripts/run_tests.py --source
+```
+
+Expected115 tests PASS. No wheel reinstall or repeat of the accepted native GUI25 is
+required for this test/document-only correction. Work Linux/alias results do not claim
+native macOS acceptance. Other P2 PO acceptance gates retain their actual completion state.
+
+---
+
+# Historical P1 verification record
 
 A1 and A2 are PO accepted. Historical statuses below describe their delivery dates.
 From repository root, with Python/Tk available and a desktop display for GUI tests:
@@ -22,7 +77,7 @@ Build with requirements-build.txt and the existing commands below, using version
 
 ---
 
-# Current A2 verification
+# Historical A2 verification record
 
 A1 is PO accepted at 8017af4. Historical A1 evidence below is retained;
 its old pending-acceptance statements do not override current PO decisions.

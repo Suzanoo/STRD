@@ -21,9 +21,9 @@ def main():
     with zipfile.ZipFile(wheel) as package:
         names=package.namelist()
         if len(set(names))!=len(names):raise ValueError('Duplicate entries')
-        if any(not n.startswith(('strd/','strd_verified/','strd_engine-0.3.0.dist-info/')) for n in names):raise ValueError('Unexpected wheel contents')
-        meta=BytesParser().parsebytes(package.read('strd_engine-0.3.0.dist-info/METADATA'))
-        if meta['Name']!='strd-engine' or meta['Version']!='0.3.0' or meta.get_all('Requires-Dist'):raise ValueError('Wrong metadata/dependencies')
+        if any(not n.startswith(('strd/','strd_verified/','strd_engine-0.4.0.dist-info/')) for n in names):raise ValueError('Unexpected wheel contents')
+        meta=BytesParser().parsebytes(package.read('strd_engine-0.4.0.dist-info/METADATA'))
+        if meta['Name']!='strd-engine' or meta['Version']!='0.4.0' or meta.get_all('Requires-Dist'):raise ValueError('Wrong metadata/dependencies')
         expected={p.relative_to(root/'src').as_posix():p for p in (root/'src').rglob('*') if p.is_file() and (p.suffix in ('.py', '.json') or p.name=='py.typed')}
         actual={n for n in names if n.startswith(('strd/','strd_verified/'))}
         if actual!=set(expected):raise ValueError('Wheel/source inventory mismatch')
@@ -34,7 +34,7 @@ def main():
     env=dict(os.environ)
     for k in ('PYTHONPATH','PYTHONHOME','PIP_TARGET','PIP_PREFIX','PIP_USER'):env.pop(k,None)
     env['PYTHONNOUSERSITE']='1'
-    with tempfile.TemporaryDirectory(prefix='strd-p1-installed-') as temp:
+    with tempfile.TemporaryDirectory(prefix='strd-p2-installed-') as temp:
         temp=Path(temp);venv.EnvBuilder(with_pip=True).create(temp/'env')
         python=temp/'env'/('Scripts/python.exe' if os.name=='nt' else 'bin/python')
         run([python,'-I','-m','pip','--isolated','install','--no-index','--no-deps',wheel],temp,env)
@@ -43,7 +43,7 @@ def main():
         probe="""import importlib.util,strd,strd_verified
 from pathlib import Path
 from importlib.metadata import version, distribution
-assert version('strd-engine')==strd.__version__=='0.3.0'
+assert version('strd-engine')==strd.__version__=='0.4.0'
 assert all('site-packages' in Path(m.__file__).parts for m in (strd,strd_verified))
 assert not any(importlib.util.find_spec(p) for p in ('numpy','pandas','scipy','matplotlib','PySide6','app','applications'))
 assert any(e.name=='strd-desktop' and e.value=='strd.desktop.__main__:main' and e.group=='gui_scripts' for e in distribution('strd-engine').entry_points)

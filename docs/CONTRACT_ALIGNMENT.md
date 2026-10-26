@@ -1,4 +1,14 @@
+Current status (2026-10-26): P1 and contract alignment are PO accepted at
+main 34022debc3ca956804d59550d98ac04a51763e52, tag p1-accepted. P2 alone is authorized;
+P2 implementation is submitted for review. P3 remains unauthorized. Historical statements
+below describe earlier delivery-time status and do not override current PO decisions.
+
 # P1 contract alignment — source, deltas and authority
+
+## Historical P1 alignment investigation and review record
+
+The baseline, "this delivery" and review gate below refer to the original P1 delivery,
+whose contracts were subsequently accepted with P1. They do not defer P2 authorization.
 
 PO explicitly authorized adoption of applicable Progress Studio contracts into STRD.
 Source inspected: Suzanoo/progress-studio main and previously pinned revision both

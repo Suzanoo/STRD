@@ -211,6 +211,9 @@ class StrengthApp:
         except Exception as exc:
             self.session.invalidate();self.refresh_state();self.status.configure(text='Calculation error - no current result',foreground='#a01d25')
             self.summary.configure(text='Calculation error: '+str(exc));self.tabs.select(self.results_tab);return
+        self.show_result(result)
+
+    def show_result(self,result):
         self.tabs.select(self.results_tab)
         status=result['status']
         labels={'CHECKS_PASS':'Checks pass - conditional strength only','CHECKS_FAIL':'Strength check failed','INCOMPLETE':'Incomplete - some checks not performed','INVALID_INPUT':'Invalid input','UNSUPPORTED':'Outside supported scope'}

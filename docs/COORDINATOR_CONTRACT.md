@@ -1,7 +1,7 @@
 > STRD adaptation: source Suzanoo/progress-studio @ 9e6c0a7b66ab400fd4bfc51f428042c795d549a5, docs/COORDINATOR_CONTRACT.md.
 > Adopted under PO P1 contract-alignment authorization. STRD-specific deltas are recorded
 > in CONTRACT_ALIGNMENT.md; no unrelated Progress Studio feature rules apply.
-> Acceptance of this delivery remains pending; current PO instructions govern any conflict.
+> Accepted with P1 at 34022de; current PO instructions govern subsequent scope.
 
 # Coordinator Collaboration Contract
 

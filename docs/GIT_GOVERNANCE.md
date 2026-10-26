@@ -1,3 +1,8 @@
+Current status (2026-10-26): P1 and contract alignment are PO accepted at
+main 34022debc3ca956804d59550d98ac04a51763e52, tag p1-accepted. P2 alone is authorized;
+P2 implementation is submitted for review. P3 remains unauthorized. Historical statements
+below describe earlier delivery-time status and do not override current PO decisions.
+
 # STRD Git governance, integration and milestone closure
 
 Authority: PO P1 contract-alignment authorization; applies with ENGINEER_CONTRACT,
@@ -71,7 +76,20 @@ INTEGRATED -> CLOSED. Tag/release are separately recorded actions, not synonyms 
 acceptance. A milestone with an expressly deferred gate must say so; an unexecuted
 native gate cannot be reported PASS. Corrections reopen the relevant review/gates.
 
-## Current recorded baseline
+## Current accepted baseline and P2 status (2026-10-26)
+
+P1 and contract alignment passed PO Acceptance and were integrated into main at
+34022debc3ca956804d59550d98ac04a51763e52. The remote annotated p1-accepted tag
+(object b6033625ecc95f48766d03e55327495a678f9cb8) resolves to that commit.
+P2 implementation and this focused documentation correction are authorized. P2 remains
+submitted for Coordinator review and PO Acceptance, not accepted or Git-integrated.
+No P2 Git operation, release or P3 implementation is authorized by this status record.
+Remote evidence does not establish the user's local worktree state.
+
+## Historical baseline record — P1 delivery (superseded status)
+
+The following paragraph is retained verbatim as the P1 delivery-time record.
+Its A2 baseline and then-pending authorizations are historical, not current authority.
 
 PO accepts A2 at d232274ff92adcee83cad4256fd55da4bb9a9c8f. Read-only remote evidence
 on 2026-10-25: main points there; annotated a2-accepted tag object

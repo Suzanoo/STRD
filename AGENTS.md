@@ -12,10 +12,11 @@ read-only API evidence is permitted. Never access or modify Legacy Stashes.
 Deliver complete changed files/manifest/evidence and standalone engineering and
 contract-alignment .txt reports separately from implementation ZIP.
 
-MS0/MS1/MS2/A1/A2 accepted. Baseline main d232274ff92adcee83cad4256fd55da4bb9a9c8f,
-a2-accepted tag. P1 + contract alignment ONLY authorized; implementation submitted,
-PO acceptance pending. PO selected Desktop/macOS pilot. Read docs/P1.md.
-No P2/persistence, P3/release or additional engineering capability is authorized.
+MS0/MS1/MS2/A1/A2/P1 and contract alignment accepted. Baseline main
+34022debc3ca956804d59550d98ac04a51763e52, tag p1-accepted. P2 Safe Project Workspace
+ONLY authorized; submitted for review, not PO accepted/integrated/released.
+Desktop/macOS pilot remains selected. Read docs/P2.md. P3 and additional engineering
+capabilities remain unauthorized. Existing legacy stashes must remain untouched.
 
 DPT book remains design basis; SYS supplies section properties. Preserve verified
 behavior, source/units/applicability, independent tests and explicit not_checked.
