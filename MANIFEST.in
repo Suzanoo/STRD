@@ -2,6 +2,7 @@ include AGENTS.md .gitattributes requirements-build.txt
 recursive-include docs *.md *.txt
 recursive-include tests_verified *.py *.json
 recursive-include verification *.py
-recursive-include scripts *.py
+recursive-include scripts *.py *.command
 recursive-include archive *.py *.csv *.md *.json
 recursive-include examples *.json
+recursive-include tests_desktop *.py

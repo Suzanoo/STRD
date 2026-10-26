@@ -1,3 +1,13 @@
+# P1 desktop pilot (submitted for acceptance)
+
+Install the delivered strd-engine 0.3.0 wheel in a fresh `.venv-p1`, then run
+`.venv-p1/bin/python -m strd.desktop`. Python with Tk is required for the desktop.
+See [P1 setup and use](docs/P1.md), [verification](docs/TESTING.md) and
+[contracts](docs/COLLABORATION.md). Desktop/macOS is the PO-selected pilot.
+The accepted A2 engineering engine and two verified SYS sections remain unchanged.
+
+The following A2 instructions are historical; use P1 versions/commands above.
+
 # STRD — bounded steel strength engine
 
 MS0/MS1/MS2/A1 accepted. A2 submitted for PO review: two curated SYS rolled-H

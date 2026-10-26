@@ -1,3 +1,27 @@
+# Current P1 verification
+
+A1 and A2 are PO accepted. Historical statuses below describe their delivery dates.
+From repository root, with Python/Tk available and a desktop display for GUI tests:
+
+```sh
+python3 scripts/run_tests.py --source
+python3 scripts/run_gui_tests.py --source
+python3 scripts/verify_distribution.py /PATH/strd_engine-0.3.0-py3-none-any.whl --gui
+```
+
+Headless suite: 87 methods (72 accepted + 15 P1 draft/freshness/adapter tests).
+Real-widget suite: 12 methods. `--gui` checks the installed wheel in a clean venv
+outside the repository, including entry-point metadata. Without `--gui` the
+headless distribution gate remains usable without Tk/display. GUI failure to
+initialize is reported NOT EXECUTED with nonzero exit, never a passing skip.
+
+For an already installed pilot: `.venv-p1/bin/python scripts/run_tests.py` and
+`.venv-p1/bin/python scripts/run_gui_tests.py`. Do not add `--source` to an installed
+verification. macOS native gates remain in P1.md; Linux Tk evidence is not macOS proof.
+Build with requirements-build.txt and the existing commands below, using version 0.3.0.
+
+---
+
 # Current A2 verification
 
 A1 is PO accepted at 8017af4. Historical A1 evidence below is retained;

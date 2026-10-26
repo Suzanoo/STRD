@@ -1,5 +1,10 @@
 # Roadmap review after A2 — recommendations, not implementation authorization
 
+Current status: A2 is PO accepted at d232274 (a2-accepted). P1 and contract alignment
+are authorized; PO selected Desktop/macOS. See P1.md. The following historical
+A2 delivery/roadmap evidence retains its original statements; no P2 is authorized.
+
+
 Accepted history: MS0/MS1/MS2 and A1. A2 is currently submitted for review.
 Prior investigation proposed A1 -> A2 -> P1 -> P2 -> P3, then selective extensions.
 User authorized review of remaining milestones; none below is authorized to implement.

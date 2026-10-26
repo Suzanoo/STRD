@@ -16,13 +16,14 @@ def run(args,cwd,env):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('wheel',type=Path)
-    wheel=parser.parse_args().wheel.resolve();root=Path(__file__).resolve().parents[1]
+    parser.add_argument('--gui',action='store_true',help='Require real installed Tk widget tests')
+    args=parser.parse_args();wheel=args.wheel.resolve();root=Path(__file__).resolve().parents[1]
     with zipfile.ZipFile(wheel) as package:
         names=package.namelist()
         if len(set(names))!=len(names):raise ValueError('Duplicate entries')
-        if any(not n.startswith(('strd/','strd_verified/','strd_engine-0.2.0.dist-info/')) for n in names):raise ValueError('Unexpected wheel contents')
-        meta=BytesParser().parsebytes(package.read('strd_engine-0.2.0.dist-info/METADATA'))
-        if meta['Name']!='strd-engine' or meta['Version']!='0.2.0' or meta.get_all('Requires-Dist'):raise ValueError('Wrong metadata/dependencies')
+        if any(not n.startswith(('strd/','strd_verified/','strd_engine-0.3.0.dist-info/')) for n in names):raise ValueError('Unexpected wheel contents')
+        meta=BytesParser().parsebytes(package.read('strd_engine-0.3.0.dist-info/METADATA'))
+        if meta['Name']!='strd-engine' or meta['Version']!='0.3.0' or meta.get_all('Requires-Dist'):raise ValueError('Wrong metadata/dependencies')
         expected={p.relative_to(root/'src').as_posix():p for p in (root/'src').rglob('*') if p.is_file() and (p.suffix in ('.py', '.json') or p.name=='py.typed')}
         actual={n for n in names if n.startswith(('strd/','strd_verified/'))}
         if actual!=set(expected):raise ValueError('Wheel/source inventory mismatch')
@@ -33,7 +34,7 @@ def main():
     env=dict(os.environ)
     for k in ('PYTHONPATH','PYTHONHOME','PIP_TARGET','PIP_PREFIX','PIP_USER'):env.pop(k,None)
     env['PYTHONNOUSERSITE']='1'
-    with tempfile.TemporaryDirectory(prefix='strd-a1-installed-') as temp:
+    with tempfile.TemporaryDirectory(prefix='strd-p1-installed-') as temp:
         temp=Path(temp);venv.EnvBuilder(with_pip=True).create(temp/'env')
         python=temp/'env'/('Scripts/python.exe' if os.name=='nt' else 'bin/python')
         run([python,'-I','-m','pip','--isolated','install','--no-index','--no-deps',wheel],temp,env)
@@ -41,11 +42,14 @@ def main():
         run([python,'-I',root/'scripts/run_tests.py'],temp,env)
         probe="""import importlib.util,strd,strd_verified
 from pathlib import Path
-from importlib.metadata import version
-assert version('strd-engine')==strd.__version__=='0.2.0'
+from importlib.metadata import version, distribution
+assert version('strd-engine')==strd.__version__=='0.3.0'
 assert all('site-packages' in Path(m.__file__).parts for m in (strd,strd_verified))
 assert not any(importlib.util.find_spec(p) for p in ('numpy','pandas','scipy','matplotlib','PySide6','app','applications'))
-print('Installed path/dependency isolation PASS')
+assert any(e.name=='strd-desktop' and e.value=='strd.desktop.__main__:main' and e.group=='gui_scripts' for e in distribution('strd-engine').entry_points)
+import sys
+assert 'tkinter' not in sys.modules
+print('Installed path/dependency isolation and desktop entry point PASS')
 """
         run([python,'-I','-c',probe],temp,env)
         for mod,count in [('strd_verified',2),('strd_verified.ms2_examples',7)]:
@@ -71,6 +75,7 @@ print('Installed path/dependency isolation PASS')
             p=subprocess.run([str(python),'-I','-m','strd.assessment','-'],input=malformed,cwd=temp,env=env,capture_output=True,text=True,encoding='utf-8')
             if p.returncode!=2 or json.loads(p.stdout)['status']!='INVALID_INPUT':raise ValueError('Malformed JSON accepted')
         print('A2 independent worksheet: 2 sections; CLI: 6 status/exit/JSON checks PASS',flush=True)
+        if args.gui:run([python,'-I',root/'scripts/run_gui_tests.py'],temp,env)
     print('Installed distribution verification PASS',flush=True)
 
 if __name__=='__main__':main()
